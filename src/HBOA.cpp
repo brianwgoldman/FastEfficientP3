@@ -140,7 +140,7 @@ Bayesian_Tree& Bayesian_Tree::operator=(Bayesian_Tree rhs) {
 
 Bayesian_Tree::operator string() const {
   if (is_leaf) {
-    return "[]";
+    return to_string(float(counts[1]) / solutions.size());
   }
   string zero = static_cast<string>(*left);
   string one = static_cast<string>(*right);
@@ -365,9 +365,77 @@ void Bayesian_Forest::filter(
 
 HBOA::HBOA(Random& _rand, Evaluator& _evaluator, Configuration& _config)
     : Optimizer(_rand, _evaluator, _config) {
+  size_t pop_size = config.get<int>("pop_size");
 
+  // optionally applies a hill climber to the initial solutions
+  auto hc = config.get<hill_climb::pointer>("hill_climber");
+
+  float fitness;
+  for (size_t i = 0; i < pop_size; i++) {
+    // create and evaluate solutions
+    auto solution = rand_vector(rand, length);
+    fitness = evaluator.evaluate(solution);
+    // Apply hill climber if configured to do so
+    hc(rand, solution, fitness, evaluator);
+    solutions.push_back(solution);
+    fitnesses.push_back(fitness);
+  }
+  selection.resize(pop_size);
+  iota(selection.begin(), selection.end(), 0);
+  rtr_size = min(length, pop_size / 20);
+  if (rtr_size == 0) {
+    rtr_size = 1;
+  }
 }
 
 bool HBOA::iterate() {
-  return false;
+  Bayesian_Forest model(length);
+  // binary tournament
+  uniform_int_distribution<int> choose(0, solutions.size() - 1);
+  int x, y;
+  for (size_t i = 0; i < selection.size() / 2; i++) {
+    x = choose(rand);
+    y = choose(rand);
+    // compete adjacent solutions in the solutions vector
+    if (fitnesses[x] < fitnesses[y]) {
+      model.add_solution(solutions[y]);
+    } else {
+      model.add_solution(solutions[x]);
+    }
+  }
+  model.build_forest();
+
+  // storage for the newly generated solution
+  double fitness;
+  vector<bool> solution(length);
+  // track if anything in the current population has been replaced
+  bool replaced = false;
+  for (size_t i = 0; i < solutions.size(); i++) {
+    model.generate(rand, solution);
+    fitness = evaluator.evaluate(solution);
+    int choice = rtr_nearest(solution);
+    if (fitnesses[choice] < fitness) {
+      solutions[choice] = solution;
+      fitnesses[choice] = fitness;
+      replaced = true;
+    }
+  }
+  return replaced;
+}
+
+int HBOA::rtr_nearest(const vector<bool>& solution) {
+  int index;
+  int choice = -1;
+  int distance = length + 1;
+  for (size_t i = 0; i < rtr_size; i++) {
+    // only look at unused indices.
+    index = std::uniform_int_distribution<int>(i, selection.size() - 1)(rand);
+    swap(selection[i], selection[index]);
+    int new_dist = hamming_distance(solutions[selection[i]], solution);
+    if (new_dist < distance) {
+      distance = new_dist;
+      choice = selection[i];
+    }
+  }
+  return choice;
 }

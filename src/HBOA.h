@@ -2,6 +2,7 @@
 #include "Configuration.h"
 #include "Optimizer.h"
 #include "Util.h"
+#include "HillClimb.h"
 #include <algorithm>
 #include <fstream>
 #include <unordered_set>
@@ -76,4 +77,10 @@ class HBOA : public Optimizer {
   HBOA(Random& _rand, Evaluator& _evaluator, Configuration& _config);
   bool iterate() override;
   create_optimizer(HBOA);
+ private:
+  int rtr_nearest(const vector<bool>& solution);
+  vector<vector<bool>> solutions;
+  vector<float> fitnesses;
+  vector<int> selection;
+  size_t rtr_size;
 };
