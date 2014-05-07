@@ -7,6 +7,7 @@ CPP_SRCS += \
 ../src/Configuration.cpp \
 ../src/Evaluation.cpp \
 ../src/Experiments.cpp \
+../src/HBOA.cpp \
 ../src/HillCimb.cpp \
 ../src/LTGA.cpp \
 ../src/LambdaLambda.cpp \
@@ -23,6 +24,7 @@ OBJS += \
 ./src/Configuration.o \
 ./src/Evaluation.o \
 ./src/Experiments.o \
+./src/HBOA.o \
 ./src/HillCimb.o \
 ./src/LTGA.o \
 ./src/LambdaLambda.o \
@@ -39,6 +41,7 @@ CPP_DEPS += \
 ./src/Configuration.d \
 ./src/Evaluation.d \
 ./src/Experiments.d \
+./src/HBOA.d \
 ./src/HillCimb.d \
 ./src/LTGA.d \
 ./src/LambdaLambda.d \
