@@ -83,4 +83,5 @@ class HBOA : public Optimizer {
   vector<float> fitnesses;
   vector<int> selection;
   size_t rtr_size;
+  hill_climb::pointer hc;
 };

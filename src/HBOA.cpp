@@ -368,7 +368,7 @@ HBOA::HBOA(Random& _rand, Evaluator& _evaluator, Configuration& _config)
   size_t pop_size = config.get<int>("pop_size");
 
   // optionally applies a hill climber to the initial solutions
-  auto hc = config.get<hill_climb::pointer>("hill_climber");
+  hc = config.get<hill_climb::pointer>("hill_climber");
 
   float fitness;
   for (size_t i = 0; i < pop_size; i++) {
@@ -393,7 +393,7 @@ bool HBOA::iterate() {
   // binary tournament
   uniform_int_distribution<int> choose(0, solutions.size() - 1);
   int x, y;
-  for (size_t i = 0; i < selection.size() / 2; i++) {
+  for (size_t i = 0; i < selection.size(); i++) {
     x = choose(rand);
     y = choose(rand);
     // compete adjacent solutions in the solutions vector
@@ -406,13 +406,14 @@ bool HBOA::iterate() {
   model.build_forest();
 
   // storage for the newly generated solution
-  double fitness;
+  float fitness;
   vector<bool> solution(length);
   // track if anything in the current population has been replaced
   bool replaced = false;
   for (size_t i = 0; i < solutions.size(); i++) {
     model.generate(rand, solution);
     fitness = evaluator.evaluate(solution);
+    hc(rand, solution, fitness, evaluator);
     int choice = rtr_nearest(solution);
     if (fitnesses[choice] < fitness) {
       solutions[choice] = solution;
