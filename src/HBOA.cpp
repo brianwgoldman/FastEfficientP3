@@ -53,9 +53,16 @@ void Factorial_Fraction::simplify(const Factorizer& factorizer) {
 
 Factorial_Fraction::operator double() const {
   double result = 1;
+  vector<double> top, bot;
   for (size_t i = 2; i < upper.size(); i++) {
-    result *= pow(i, upper[i]);
-    result /= pow(i, lower[i]);
+    top.push_back(pow(i, upper[i]));
+    bot.push_back(pow(i, lower[i]));
+  }
+  sort(top.begin(), top.end());
+  sort(bot.begin(), bot.end());
+  for (size_t i=0; i < top.size(); i++) {
+    result *= top[i];
+    result /= bot[i];
   }
   return result;
 }
