@@ -20,7 +20,7 @@ class Factorial_Fraction {
   Factorial_Fraction(size_t n=0): upper(n+1, 0), lower(n+1, 0) {}
   void mul_by_factorial(size_t n);
   void div_by_factorial(size_t n);
-  void simplify(const Factorizer& factorizer);
+  void simplify();
   operator double() const;
   friend std::ostream& operator<<(std::ostream& out, const Factorial_Fraction&);
   Factorial_Fraction operator*(const Factorial_Fraction& rhs) const;
@@ -64,7 +64,7 @@ class Bayesian_Forest {
   void generate(Random& rand, vector<bool> & solution);
   friend std::ostream& operator<<(std::ostream& out, const Bayesian_Forest&);
  private:
-  void build_options(Bayesian_Tree& tree, const Factorizer&, vector<std::tuple<double, Bayesian_Tree*, size_t>>&) const;
+  void build_options(Bayesian_Tree& tree, vector<std::tuple<double, Bayesian_Tree*, size_t>>&) const;
   void filter(vector<std::tuple<double, Bayesian_Tree*, size_t>> &, double);
   vector<std::unordered_set<size_t>> prev, post;
   vector<Bayesian_Tree> trees;

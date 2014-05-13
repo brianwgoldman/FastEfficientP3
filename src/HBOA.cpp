@@ -41,9 +41,7 @@ void Factorial_Fraction::div_by_factorial(size_t n) {
   }
 }
 
-void Factorial_Fraction::simplify(const Factorizer& factorizer) {
-  factorizer(upper);
-  factorizer(lower);
+void Factorial_Fraction::simplify() {
   for (size_t i = 2; i < upper.size(); i++) {
     size_t extra = min(upper[i], lower[i]);
     upper[i] -= extra;
@@ -53,16 +51,43 @@ void Factorial_Fraction::simplify(const Factorizer& factorizer) {
 
 Factorial_Fraction::operator double() const {
   double result = 1;
-  vector<double> top, bot;
-  for (size_t i = 2; i < upper.size(); i++) {
-    top.push_back(pow(i, upper[i]));
-    bot.push_back(pow(i, lower[i]));
+  size_t t = 2, b = 2;
+  vector<size_t> top(upper);
+  vector<size_t> bot(lower);
+  while (t < top.size() and b < bot.size()) {
+    // above 1 make smaller
+    if (result > 1) {
+      if (bot[b]) {
+        result /= b;
+        bot[b]--;
+      } else {
+        b++;
+      }
+    } else {
+      if (top[t]) {
+        result *= t;
+        top[t]--;
+      } else {
+        t++;
+      }
+    }
   }
-  sort(top.begin(), top.end());
-  sort(bot.begin(), bot.end());
-  for (size_t i=0; i < top.size(); i++) {
-    result *= top[i];
-    result /= bot[i];
+  // only one of the two still has things
+  while (t < top.size()) {
+    if (top[t]) {
+      result *= t;
+      top[t]--;
+    } else {
+      t++;
+    }
+  }
+  while (b < bot.size()) {
+    if (bot[b]) {
+      result /= b;
+      bot[b]--;
+    } else {
+      b++;
+    }
   }
   return result;
 }
@@ -283,11 +308,10 @@ void Bayesian_Forest::build_forest() {
   }
   vector<tuple<double, Bayesian_Tree*, size_t>> options;
   // maximum factor you are going to need is 1 more than all solutions.
-  Factorizer factors(added + 1);
   for (auto& tree : trees) {
     // ensure it starts as a leaf.
     tree.join();
-    build_options(tree, factors, options);
+    build_options(tree, options);
   }
 
   // ensures minimum quality for the split
@@ -311,8 +335,8 @@ void Bayesian_Forest::build_forest() {
     splitting.split(new_index);
 
     // build new options for the two new trees
-    build_options(*splitting.left, factors, options);
-    build_options(*splitting.right, factors, options);
+    build_options(*splitting.left, options);
+    build_options(*splitting.right, options);
 
     // clear out any invalid splits
     filter(options, threshold);
@@ -338,7 +362,7 @@ std::ostream& operator<<(std::ostream& out, const Bayesian_Forest& forest) {
 }
 
 void Bayesian_Forest::build_options(
-    Bayesian_Tree& tree, const Factorizer& factors,
+    Bayesian_Tree& tree,
     vector<std::tuple<double, Bayesian_Tree*, size_t>>& options) const {
   Factorial_Fraction initial = tree.bde_fraction();
   const auto & invalid = post[tree.index];
@@ -347,7 +371,7 @@ void Bayesian_Forest::build_options(
     if (invalid.count(i) == 0) {
       Factorial_Fraction with_split = tree.splitless_bde(i);
       Factorial_Fraction result = initial / with_split;
-      result.simplify(factors);
+      result.simplify();
       options.emplace_back(result, &tree, i);
     }
   }
