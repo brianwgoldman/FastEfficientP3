@@ -73,6 +73,24 @@ float DeceptiveStepTrap::evaluate(const vector<bool> & solution) {
   return float_round(fitness, precision);
 }
 
+// Iterate over the 3 bit traps, sum up their scores
+float Deceptive3::evaluate(const vector<bool> & solution) {
+  int partial;
+  float total = 0;
+  for (size_t i = 0; i < solution.size(); i += 3) {
+    // Find the number of bits set in each trap
+    partial = 0;
+    for (size_t index = i; index < i + 3; index++) {
+      partial += solution[index];
+    }
+    // score the trap
+    total += scores[partial];
+  }
+
+  // Convert to percentage of total
+  return float_round((3 * total) / solution.size(), precision);
+}
+
 // Attempts to load the problem file, otherwise constructs a new problem
 // solves it, and saves it to a problem file
 NearestNeighborNK::NearestNeighborNK(Configuration& config, int run_number) {

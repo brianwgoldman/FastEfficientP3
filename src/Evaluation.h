@@ -85,6 +85,21 @@ class DeceptiveStepTrap : public Evaluator {
 
 };
 
+// Deceptive trap of order 3, similar to the Deceptive Trap problem,
+// except that traps are not scored linearly and are always of size 3.
+class Deceptive3 : public Evaluator {
+ public:
+  Deceptive3(Configuration& config, int run_number)
+      : precision(config.get<int>("precision")) {
+  }
+  float evaluate(const vector<bool> & solution) override;
+  create_evaluator(Deceptive3);
+
+ private:
+  const float scores [4] {0.9, 0.8, 0, 1};
+  int precision;
+};
+
 // The Nearest Neighbor NK problem randomly generates
 // a fitness landscape where the fitness of each bit
 // relies on the k bits directly following it in the genome.
@@ -229,6 +244,7 @@ static std::unordered_map<string, pointer> lookup( {
     { "OneMax", OneMax::create },
     { "DeceptiveTrap", DeceptiveTrap::create },
     { "DeceptiveStepTrap", DeceptiveStepTrap::create },
+    { "Deceptive3", Deceptive3::create },
     { "NearestNeighborNK", NearestNeighborNK::create },
     { "LeadingOnes", LeadingOnes::create },
     { "HIFF", HIFF::create },
