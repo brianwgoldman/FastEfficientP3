@@ -60,7 +60,7 @@ class Bayesian_Forest {
  public:
   Bayesian_Forest(size_t n);
   void add_solution(const vector<bool>& solution);
-  void build_forest();
+  void build_forest(Random & rand);
   void generate(Random& rand, vector<bool> & solution);
   friend std::ostream& operator<<(std::ostream& out, const Bayesian_Forest&);
  private:
@@ -84,4 +84,5 @@ class HBOA : public Optimizer {
   vector<int> selection;
   size_t rtr_size;
   hill_climb::pointer hc;
+  size_t completed_generations;
 };

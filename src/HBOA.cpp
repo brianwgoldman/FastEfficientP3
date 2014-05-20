@@ -298,7 +298,7 @@ void Bayesian_Forest::add_solution(const vector<bool>& solution) {
   }
 }
 
-void Bayesian_Forest::build_forest() {
+void Bayesian_Forest::build_forest(Random & rand) {
   // Initially all trees have themselves as both prev and post
   prev.resize(trees.size());
   post.resize(trees.size());
@@ -317,6 +317,7 @@ void Bayesian_Forest::build_forest() {
   // ensures minimum quality for the split
   double threshold = pow(2, -0.5 * log2(added));
   filter(options, threshold);
+  shuffle(options.begin(), options.end(), rand);
   while (options.size()) {
     auto best = *min_element(options.begin(), options.end());
     Bayesian_Tree& splitting = *get<1>(best);
@@ -340,6 +341,7 @@ void Bayesian_Forest::build_forest() {
 
     // clear out any invalid splits
     filter(options, threshold);
+    shuffle(options.begin(), options.end(), rand);
   }
 
   // determine what order bits can be generated to ensure all dependencies
@@ -417,9 +419,11 @@ HBOA::HBOA(Random& _rand, Evaluator& _evaluator, Configuration& _config)
   if (rtr_size == 0) {
     rtr_size = 1;
   }
+  completed_generations = 0;
 }
 
 bool HBOA::iterate() {
+  completed_generations++;
   Bayesian_Forest model(length);
   // binary tournament
   uniform_int_distribution<int> choose(0, solutions.size() - 1);
@@ -434,13 +438,11 @@ bool HBOA::iterate() {
       model.add_solution(solutions[x]);
     }
   }
-  model.build_forest();
+  model.build_forest(rand);
 
   // storage for the newly generated solution
   float fitness;
   vector<bool> solution(length);
-  // track if anything in the current population has been replaced
-  bool replaced = false;
   for (size_t i = 0; i < solutions.size(); i++) {
     model.generate(rand, solution);
     fitness = evaluator.evaluate(solution);
@@ -449,10 +451,10 @@ bool HBOA::iterate() {
     if (fitnesses[choice] < fitness) {
       solutions[choice] = solution;
       fitnesses[choice] = fitness;
-      replaced = true;
     }
   }
-  return replaced;
+  // termination is when generations equals length
+  return completed_generations < length;
 }
 
 int HBOA::rtr_nearest(const vector<bool>& solution) {

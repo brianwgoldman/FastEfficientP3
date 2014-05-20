@@ -13,6 +13,7 @@ CPP_SRCS += \
 ../src/LambdaLambda.cpp \
 ../src/MiddleLayer.cpp \
 ../src/OptimizationCollection.cpp \
+../src/Popless.cpp \
 ../src/Population.cpp \
 ../src/Pyramid.cpp \
 ../src/RandomRestartHC.cpp \
@@ -30,6 +31,7 @@ OBJS += \
 ./src/LambdaLambda.o \
 ./src/MiddleLayer.o \
 ./src/OptimizationCollection.o \
+./src/Popless.o \
 ./src/Population.o \
 ./src/Pyramid.o \
 ./src/RandomRestartHC.o \
@@ -47,6 +49,7 @@ CPP_DEPS += \
 ./src/LambdaLambda.d \
 ./src/MiddleLayer.d \
 ./src/OptimizationCollection.d \
+./src/Popless.d \
 ./src/Population.d \
 ./src/Pyramid.d \
 ./src/RandomRestartHC.d \
