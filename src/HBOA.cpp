@@ -186,11 +186,11 @@ ostream& operator<<(ostream& out, const Bayesian_Tree& tree) {
   return out;
 }
 
-void Bayesian_Tree::add_solution(const vector<bool>& solution) {
+void Bayesian_Tree::add_solution(const vector<bool>* const solution) {
   if (is_leaf) {
     solutions.push_back(solution);
-    counts[solution[index]]++;
-  } else if (solution[index]) {
+    counts[solution->at(index)]++;
+  } else if (solution->at(index)) {
     right->add_solution(solution);
   } else {
     left->add_solution(solution);
@@ -206,7 +206,7 @@ void Bayesian_Tree::split(size_t new_index) {
   right = new Bayesian_Tree(index);
   index = new_index;
   for (const auto& solution : solutions) {
-    if (solution[index]) {
+    if (solution->at(index)) {
       right->add_solution(solution);
     } else {
       left->add_solution(solution);
@@ -249,7 +249,7 @@ Factorial_Fraction Bayesian_Tree::bde_fraction() {
 Factorial_Fraction Bayesian_Tree::splitless_bde(size_t new_index) {
   array<size_t, 4> splitcount = { 0, 0, 0, 0 };
   for (const auto& solution : solutions) {
-    splitcount[(solution[new_index] << 1) | solution[index]]++;
+    splitcount[(solution->at(new_index) << 1) | solution->at(index)]++;
   }
   Factorial_Fraction result;
   // left child
@@ -291,7 +291,7 @@ Bayesian_Forest::Bayesian_Forest(size_t n)
   iota(ordering.begin(), ordering.end(), 0);
 }
 
-void Bayesian_Forest::add_solution(const vector<bool>& solution) {
+void Bayesian_Forest::add_solution(const vector<bool>* solution) {
   added += 1;
   for (auto& tree : trees) {
     tree.add_solution(solution);
@@ -433,9 +433,9 @@ bool HBOA::iterate() {
     y = choose(rand);
     // compete adjacent solutions in the solutions vector
     if (fitnesses[x] < fitnesses[y]) {
-      model.add_solution(solutions[y]);
+      model.add_solution(&(solutions[y]));
     } else {
-      model.add_solution(solutions[x]);
+      model.add_solution(&(solutions[x]));
     }
   }
   model.build_forest(rand);

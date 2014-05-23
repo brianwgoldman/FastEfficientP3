@@ -40,7 +40,7 @@ struct Bayesian_Tree {
   operator string() const;
   friend std::ostream& operator<<(std::ostream& out, const Bayesian_Tree&);
 
-  void add_solution(const vector<bool>& solution);
+  void add_solution(const vector<bool>* const solution);
   void split(size_t new_index);
   void join();
 
@@ -50,7 +50,7 @@ struct Bayesian_Tree {
   Factorial_Fraction splitless_bde(size_t new_index);
   size_t index;
   bool is_leaf;
-  vector<vector<bool>> solutions;
+  vector<const vector<bool>*> solutions;
   Bayesian_Tree* left;
   Bayesian_Tree* right;
   std::array<size_t, 2> counts;
@@ -59,7 +59,7 @@ struct Bayesian_Tree {
 class Bayesian_Forest {
  public:
   Bayesian_Forest(size_t n);
-  void add_solution(const vector<bool>& solution);
+  void add_solution(const vector<bool>* solution);
   void build_forest(Random & rand);
   void generate(Random& rand, vector<bool> & solution);
   friend std::ostream& operator<<(std::ostream& out, const Bayesian_Forest&);
