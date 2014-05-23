@@ -7,7 +7,7 @@
 #PBS -o /mnt/scratch/goldma72/NAME_${PBS_JOBID}.tmp
 
 # Required by C++11
-module load GNU/4.7.1
+module load GNU/4.8.2
 
 cd ${PBS_O_WORKDIR}
 
