@@ -15,7 +15,7 @@
 using std::shared_ptr;
 
 // Macro used to create a function which returns new instances of the desired optimization method.
-#define create_optimizer(name) static shared_ptr<Optimizer> create(Random& rand, Evaluator& evaluator, Configuration& config)\
+#define create_optimizer(name) static shared_ptr<Optimizer> create(Random& rand, shared_ptr<Evaluator> evaluator, Configuration& config)\
 {\
 	return shared_ptr<Optimizer>(new name(rand, evaluator, config));\
 }
@@ -23,7 +23,7 @@ using std::shared_ptr;
 // Base class for optimization methods
 class Optimizer {
  public:
-  Optimizer(Random& _rand, Evaluator& _evaluator, Configuration& _config)
+  Optimizer(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config)
       : rand(_rand),
         evaluator(_evaluator),
         config(_config),
@@ -36,10 +36,12 @@ class Optimizer {
   // false when convergence is detected.
   virtual bool iterate() = 0;
 
+  virtual string finalize() {return string();}
+
  protected:
   // Tools useful to the actual optimization methods.
   Random& rand;
-  Evaluator& evaluator;
+  shared_ptr<Evaluator> evaluator;
   Configuration& config;
   size_t length;
 

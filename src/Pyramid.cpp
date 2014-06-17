@@ -6,6 +6,8 @@
  */
 
 #include "Pyramid.h"
+#include <sstream>
+using std::endl;
 
 // Applies crossover between the passed in solution as each level
 // of the pyramid
@@ -15,7 +17,7 @@ void Pyramid::climb(vector<bool> & solution, float & fitness) {
   for (size_t level = 0; level < pops.size(); level++) {
     float prev = fitness;
     // Use population clusters and population solutions to make new solution
-    pops[level].improve(rand, solution, fitness, evaluator);
+    pops[level].improve(rand, solution, fitness, cross_counter);
     // add it to the next level if its a strict fitness improvement,
     // or configured to always add solutions
     if (not only_add_improvements or prev < fitness) {
@@ -45,12 +47,32 @@ bool Pyramid::add_unique(const vector<bool> & solution, size_t level) {
 // Performs a full iteration of P3
 bool Pyramid::iterate() {
   // generate a random solution
+  restarts++;
   vector<bool> solution = rand_vector(rand, length);
-  float fitness = evaluator.evaluate(solution);
+  float fitness = local_counter->evaluate(solution);
   // perform a local search hill climber
-  hill_climber(rand, solution, fitness, evaluator);
+  hill_climber(rand, solution, fitness, local_counter);
   // perform crossover with each level of the pyramid
   climb(solution, fitness);
   // P3 never "converges"
   return true;
+}
+
+string Pyramid::finalize() {
+  std::ostringstream out;
+  out << "# Restarts: " << restarts << " Hill: "
+      // Convert back to Middle_Layer pointers to access the counters
+      << std::static_pointer_cast<Middle_Layer>(local_counter)->evaluations << " Cross: "
+      << std::static_pointer_cast<Middle_Layer>(cross_counter)->evaluations << endl;
+  // output column headers
+  out << "Size\tSuccesses\tTies\tFailures\tFitness" << endl;
+  for (const auto& pop: pops) {
+    float total = 0;
+    for (const auto& solution: pop.solutions) {
+      total += evaluator->evaluate(solution);
+    }
+    out << pop.solutions.size() << "\t" << pop.successes << "\t" <<pop.ties << "\t"
+        << pop.failures << "\t" << total / pop.solutions.size() << endl;
+  }
+  return out.str();
 }

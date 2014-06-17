@@ -14,7 +14,7 @@
 // Inherits and implements the Optimizer interface
 class LambdaLambda : public Optimizer {
  public:
-  LambdaLambda(Random& _rand, Evaluator& _evaluator, Configuration& _config);
+  LambdaLambda(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config);
   virtual bool iterate() override;
   create_optimizer(LambdaLambda);
 

@@ -14,17 +14,18 @@ Record single_run(Random& rand, Configuration& config,
   size_t limit = config.get<int>("eval_limit");
   float good_enough = config.get<int>("fitness_limit");
   // Middle Layer's sit between the problem and the solver, tracking optimization
-  Middle_Layer recorder(config, problem(config, run));
-  auto optimizer = solver(rand, recorder, config);
+  shared_ptr<Middle_Layer> recorder(new Middle_Layer(config, problem(config, run)));
+  auto optimizer = solver(rand, std::static_pointer_cast<Evaluator>(recorder), config);
 
   // Iterate the optimizer until the solution is reached, the maximum number
   // of evaluations is performed, or the optimizer reaches stagnation
   bool improvement_possible = true;
-  while (recorder.best_fitness < good_enough and recorder.evaluations < limit
+  while (recorder->best_fitness < good_enough and recorder->evaluations < limit
       and improvement_possible) {
     improvement_possible = optimizer->iterate();
   }
-  return recorder.results;
+  recorder->results.metadata = optimizer->finalize();
+  return recorder->results;
 }
 
 // Performs multiple runs of optization

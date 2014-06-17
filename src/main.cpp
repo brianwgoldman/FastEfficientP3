@@ -74,6 +74,9 @@ int main(int argc, char * argv[]) {
   }
   rand.seed(seed);
 
+  bool disable_metadata = config.get<int>("disable_metadata");
+  string metadata;
+
   // Specify output files
   string dat_file = config.get<string>("dat_file");
   // Writes out the combined configuration for this experiment
@@ -103,6 +106,7 @@ int main(int argc, char * argv[]) {
         cout << record.best().first << " " << record.best().second << endl;
       }
       out << record.best().first << " " << record.best().second << endl;
+      metadata += record.metadata;
     }
     out.close();
   } else { // single_run
@@ -112,6 +116,14 @@ int main(int argc, char * argv[]) {
       out << line.first << " " << line.second << endl;
     }
     out.close();
+    metadata = record.metadata;
   }
+  if (not metadata.empty() and not disable_metadata) {
+    auto lastindex = dat_file.find_last_of(".");
+    ofstream meta(dat_file.substr(0, lastindex) + ".meta");
+    meta << metadata;
+    meta.close();
+  }
+
   return 0;
 }

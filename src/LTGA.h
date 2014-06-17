@@ -18,7 +18,7 @@
 // Inherits and implements the Optimizer interface
 class LTGA : public Optimizer {
  public:
-  LTGA(Random& _rand, Evaluator& _evaluator, Configuration& _config);
+  LTGA(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config);
   bool iterate() override;
   create_optimizer(LTGA);
 

@@ -74,7 +74,7 @@ class Bayesian_Forest {
 
 class HBOA : public Optimizer {
  public:
-  HBOA(Random& _rand, Evaluator& _evaluator, Configuration& _config);
+  HBOA(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config);
   bool iterate() override;
   create_optimizer(HBOA);
  private:

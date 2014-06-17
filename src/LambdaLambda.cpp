@@ -14,14 +14,14 @@
 #include "LambdaLambda.h"
 
 // Constructs some tools used during evolution, performs initial evaluation
-LambdaLambda::LambdaLambda(Random& _rand, Evaluator& _evaluator,
+LambdaLambda::LambdaLambda(Random& _rand, shared_ptr<Evaluator> _evaluator,
                            Configuration& _config)
     : Optimizer(_rand, _evaluator, _config),
       selectors(length),
       options(length) {
   // create and evaluate initial solution
   solution = rand_vector(rand, length);
-  fitness = evaluator.evaluate(solution);
+  fitness = evaluator->evaluate(solution);
   lambda = 1;
 
   // Tool for choosing random mutation locations
@@ -73,10 +73,10 @@ bool LambdaLambda::iterate() {
 
   // Mutation loop
   vector<bool> best_offspring = mutate(solution, flips);
-  float best_offspring_fitness = evaluator.evaluate(best_offspring);
+  float best_offspring_fitness = evaluator->evaluate(best_offspring);
   for (int i = 1; i < round(lambda); i++) {
     vector<bool> next = mutate(solution, flips);
-    float next_fitness = evaluator.evaluate(next);
+    float next_fitness = evaluator->evaluate(next);
     if (best_offspring_fitness < next_fitness) {
       best_offspring_fitness = next_fitness;
       best_offspring = next;
@@ -97,7 +97,7 @@ bool LambdaLambda::iterate() {
     } else if (next == best_offspring) {
       next_fitness = best_offspring_fitness;
     } else {
-      next_fitness = evaluator.evaluate(next);
+      next_fitness = evaluator->evaluate(next);
     }
 
     // Replace if strictly better, or no worse with a higher hamming distance
@@ -131,7 +131,7 @@ bool LambdaLambda::iterate() {
   // If lambda exceeds the solution length, restart everything from a random solution
   if (lambda >= length) {
     solution = rand_vector(rand, length);
-    fitness = evaluator.evaluate(solution);
+    fitness = evaluator->evaluate(solution);
     lambda = 1;
   }
   // This algorithm never reaches stagnation, so always return true

@@ -42,13 +42,12 @@ class Record {
   const vector<pair<float, int>>& progression() {
     return levels;
   }
-
+  string metadata;
  private:
   // Raw stored data
   vector<pair<float, int>> levels;
 
   int verbosity;
-
 };
 
 #endif /* RECORD_H_ */

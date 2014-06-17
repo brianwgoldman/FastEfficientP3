@@ -396,7 +396,7 @@ void Bayesian_Forest::filter(
   swap(options, new_options);
 }
 
-HBOA::HBOA(Random& _rand, Evaluator& _evaluator, Configuration& _config)
+HBOA::HBOA(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config)
     : Optimizer(_rand, _evaluator, _config) {
   size_t pop_size = config.get<int>("pop_size");
 
@@ -407,7 +407,7 @@ HBOA::HBOA(Random& _rand, Evaluator& _evaluator, Configuration& _config)
   for (size_t i = 0; i < pop_size; i++) {
     // create and evaluate solutions
     auto solution = rand_vector(rand, length);
-    fitness = evaluator.evaluate(solution);
+    fitness = evaluator->evaluate(solution);
     // Apply hill climber if configured to do so
     hc(rand, solution, fitness, evaluator);
     solutions.push_back(solution);
@@ -445,7 +445,7 @@ bool HBOA::iterate() {
   vector<bool> solution(length);
   for (size_t i = 0; i < solutions.size(); i++) {
     model.generate(rand, solution);
-    fitness = evaluator.evaluate(solution);
+    fitness = evaluator->evaluate(solution);
     hc(rand, solution, fitness, evaluator);
     int choice = rtr_nearest(solution);
     if (fitnesses[choice] < fitness) {

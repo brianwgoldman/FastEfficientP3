@@ -27,6 +27,7 @@ Population::Population(Configuration& config) {
   stop_after_one = config.get<int>("donate_until_different") != 1;
   precision = config.get<int>("precision");
   keep_zeros = config.get<int>("keep_zeros");
+  successes = ties = failures = 0;
 }
 
 // Puts the solution into the population, updates the entropy table as requested
@@ -226,7 +227,7 @@ void Population::rebuild_tree(Random& rand) {
 // true if an evaluation was performed.
 bool Population::donate(vector<bool> & solution, float & fitness,
                         vector<bool> & source, const vector<int> & cluster,
-                        Evaluator& evaluator) {
+                        shared_ptr<Evaluator> evaluator) {
   // swap all of the cluster indices, watching for any change
   bool changed = false;
   for (const auto& index : cluster) {
@@ -236,9 +237,14 @@ bool Population::donate(vector<bool> & solution, float & fitness,
   }
 
   if (changed) {
-    float new_fitness = evaluator.evaluate(solution);
+    float new_fitness = evaluator->evaluate(solution);
     // NOTE: My previous work used strict improvement
     if (fitness <= new_fitness) {
+      if (fitness < new_fitness) {
+        successes++;
+      } else {
+        ties++;
+      }
       // improvement made, keep change to solution
       fitness = new_fitness;
       // copy pattern back into the source, leave solution changed
@@ -246,6 +252,7 @@ bool Population::donate(vector<bool> & solution, float & fitness,
         source[index] = solution[index];
       }
     } else {
+      failures++;
       // revert both solution and source
       for (const auto& index : cluster) {
         vector<bool>::swap(solution[index], source[index]);
@@ -258,7 +265,7 @@ bool Population::donate(vector<bool> & solution, float & fitness,
 // Performs an entire crossover event, applying all discovered clusters, in an
 // attempt to use the population to improve "solution".
 void Population::improve(Random& rand, vector<bool> & solution, float & fitness,
-                         Evaluator& evaluator) {
+                         shared_ptr<Evaluator> evaluator) {
   // Data structure used to select random population donors
   vector<int> options(solutions.size());
   iota(options.begin(), options.end(), 0);

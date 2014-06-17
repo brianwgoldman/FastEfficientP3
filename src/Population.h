@@ -41,9 +41,11 @@ class Population {
   // start as the fitness of "solution", and both will be set to the
   // improved values after application.
   void improve(Random& rand, vector<bool> & solution, float & fitness,
-               Evaluator& evaluator);
+               shared_ptr<Evaluator> evaluator);
   // Access the entropy table to construct a linkage tree
   void rebuild_tree(Random& rand);
+
+  size_t successes, ties, failures;
 
  private:
   // Tools used for cluster creation
@@ -72,7 +74,7 @@ class Population {
   // fitness is no worse the modification is kept and the fitness value is updated.
   // Returns true if an evaluation was performed.
   bool donate(vector<bool> & solution, float & fitness, vector<bool> & source,
-      const vector<int> & cluster, Evaluator& evaluator);
+      const vector<int> & cluster, shared_ptr<Evaluator> evaluator);
 
   // Cluster Ordering Methods - These specify how to take the clusters created by linking and convert
   // them into an order for application with crossover.

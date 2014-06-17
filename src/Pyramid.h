@@ -14,14 +14,17 @@
 #include "HillClimb.h"
 #include "Configuration.h"
 #include "Optimizer.h"
+#include "MiddleLayer.h"
 
 // Implements the Optimizer interface
 class Pyramid : public Optimizer {
  public:
-  Pyramid(Random& _rand, Evaluator& _evaluator, Configuration& _config)
+  Pyramid(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config)
       : Optimizer(_rand, _evaluator, _config),
         only_add_improvements(_config.get<int>("only_add_improvements")),
-        hill_climber(_config.get<hill_climb::pointer>("hill_climber")) {
+        hill_climber(_config.get<hill_climb::pointer>("hill_climber")),
+        local_counter(new Middle_Layer(config, _evaluator)),
+        cross_counter(new Middle_Layer(config, _evaluator)), restarts(0) {
   }
   // Iteratively improves the solution using the pyramid of populations
   // leverages the Population class extensively
@@ -31,6 +34,7 @@ class Pyramid : public Optimizer {
   // * hill climbing
   // * crossover with each level of the pyramid (climb function)
   bool iterate() override;
+  string finalize() override;
   create_optimizer(Pyramid);
 
  private:
@@ -45,6 +49,9 @@ class Pyramid : public Optimizer {
   // configuration options
   bool only_add_improvements;
   hill_climb::pointer hill_climber;
+  // Used for recording purposes
+  shared_ptr<Evaluator> local_counter, cross_counter;
+  size_t restarts;
 
 };
 

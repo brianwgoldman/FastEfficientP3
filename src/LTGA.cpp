@@ -7,7 +7,7 @@
 #include "LTGA.h"
 
 // Constructs and evaluates the initial population of solutions
-LTGA::LTGA(Random& _rand, Evaluator& _evaluator, Configuration& _config)
+LTGA::LTGA(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config)
     : Optimizer(_rand, _evaluator, _config),
       pop(_config) {
   pop_size = config.get<int>("pop_size");
@@ -21,7 +21,7 @@ LTGA::LTGA(Random& _rand, Evaluator& _evaluator, Configuration& _config)
   for (size_t i = 0; i < pop_size; i++) {
     // create and evaluate solutions
     auto solution = rand_vector(rand, length);
-    fitness = evaluator.evaluate(solution);
+    fitness = evaluator->evaluate(solution);
     // Apply hill climber if configured to do so
     hc(rand, solution, fitness, evaluator);
     solutions.push_back(solution);

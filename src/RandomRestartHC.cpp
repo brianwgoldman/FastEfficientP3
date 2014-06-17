@@ -8,7 +8,7 @@
 // is found
 bool RandomRestartHC::iterate() {
   auto solution = rand_vector(rand, length);
-  float fitness = evaluator.evaluate(solution);
+  float fitness = evaluator->evaluate(solution);
   hill_climber(rand, solution, fitness, evaluator);
 
   // Always possible

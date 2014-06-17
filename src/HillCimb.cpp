@@ -19,7 +19,7 @@ hill_climb::pointer Configuration::get(const string key) {
 // are found.  Tracks bits that have been tested since the last modification
 // to prevent waste.
 void hill_climb::first_improvement(Random & rand, vector<bool> & solution,
-                                   float & fitness, Evaluator& evaluator) {
+                                   float & fitness, shared_ptr<Evaluator> evaluator) {
   // Set up data structure for random bit selection
   vector<int> options(solution.size());
   iota(options.begin(), options.end(), 0);
@@ -41,7 +41,7 @@ void hill_climb::first_improvement(Random & rand, vector<bool> & solution,
 
       // flip and evaluate the modification
       solution[index] = not solution[index];
-      new_fitness = evaluator.evaluate(solution);
+      new_fitness = evaluator->evaluate(solution);
       if (fitness < new_fitness) {
         // Keep change, update variables
         fitness = new_fitness;
@@ -59,7 +59,7 @@ void hill_climb::first_improvement(Random & rand, vector<bool> & solution,
 // Only modify the solution once you know which single bit change will
 // result in the best fitness improvement
 void hill_climb::steepest_ascent(Random & rand, vector<bool> & solution,
-                                 float & fitness, Evaluator& evaluator) {
+                                 float & fitness, shared_ptr<Evaluator> evaluator) {
   float new_fitness;
   bool improved;
   // keep a list of which locations are tied for the most improvement
@@ -73,7 +73,7 @@ void hill_climb::steepest_ascent(Random & rand, vector<bool> & solution,
       if (working != previous) {
         // flip the bit and determine the new fitness
         solution[working] = not solution[working];
-        new_fitness = evaluator.evaluate(solution);
+        new_fitness = evaluator->evaluate(solution);
         if (fitness <= new_fitness) {
           // strict improvements clear out the old list
           if (fitness < new_fitness) {
@@ -100,15 +100,15 @@ void hill_climb::steepest_ascent(Random & rand, vector<bool> & solution,
 
 // Do nothing, just return the solution as is
 void hill_climb::no_action(Random & rand, vector<bool> & solution,
-                           float & fitness, Evaluator& evaluator) {
+                           float & fitness, shared_ptr<Evaluator> evaluator) {
 }
 
 // Compare solution with a randomly generated opponent, return whichever
 // has the higher fitness
 void hill_climb::binary_tournament(Random & rand, vector<bool> & solution,
-                                   float & fitness, Evaluator& evaluator) {
+                                   float & fitness, shared_ptr<Evaluator> evaluator) {
   auto guess = rand_vector(rand, solution.size());
-  float guess_fitness = evaluator.evaluate(guess);
+  float guess_fitness = evaluator->evaluate(guess);
   if (fitness < guess_fitness) {
     solution = guess;
     fitness = guess_fitness;
@@ -118,7 +118,7 @@ void hill_climb::binary_tournament(Random & rand, vector<bool> & solution,
 // Attempt to flip each bit in a random order, accepting improvements
 // as they are found.  Test each bit exactly once for improvement
 void hill_climb::once_each(Random & rand, vector<bool> & solution,
-                           float & fitness, Evaluator& evaluator) {
+                           float & fitness, shared_ptr<Evaluator> evaluator) {
   vector<int> options(solution.size());
   iota(options.begin(), options.end(), 0);
   float new_fitness;
@@ -127,7 +127,7 @@ void hill_climb::once_each(Random & rand, vector<bool> & solution,
   for (const auto& index : options) {
     // flip the bit and evaluate new fitness
     solution[index] = not solution[index];
-    new_fitness = evaluator.evaluate(solution);
+    new_fitness = evaluator->evaluate(solution);
     if (fitness < new_fitness) {
       fitness = new_fitness;
     } else {

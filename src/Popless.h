@@ -17,7 +17,7 @@
 // Inherits and implements the optimizer
 class Popless : public Optimizer {
  public:
-  Popless(Random& _rand, Evaluator& _evaluator, Configuration& _config);
+  Popless(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config);
   bool iterate() override;
   create_optimizer(Popless);
  private:

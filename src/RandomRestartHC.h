@@ -14,7 +14,7 @@
 // Implements the optimizer interface
 class RandomRestartHC : public Optimizer {
  public:
-  RandomRestartHC(Random& _rand, Evaluator& _evaluator, Configuration& _config)
+  RandomRestartHC(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config)
       : Optimizer(_rand, _evaluator, _config),
         hill_climber(_config.get<hill_climb::pointer>("hill_climber")) {
   }
