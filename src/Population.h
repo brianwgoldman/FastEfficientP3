@@ -45,7 +45,7 @@ class Population {
   // Access the entropy table to construct a linkage tree
   void rebuild_tree(Random& rand);
 
-  size_t successes, ties, failures;
+  size_t successes, ties, failures, donation_attempts, donation_failures;
 
  private:
   // Tools used for cluster creation

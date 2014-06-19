@@ -27,7 +27,7 @@ Population::Population(Configuration& config) {
   stop_after_one = config.get<int>("donate_until_different") != 1;
   precision = config.get<int>("precision");
   keep_zeros = config.get<int>("keep_zeros");
-  successes = ties = failures = 0;
+  successes = ties = failures = donation_attempts = donation_failures = 0;
 }
 
 // Puts the solution into the population, updates the entropy table as requested
@@ -235,7 +235,7 @@ bool Population::donate(vector<bool> & solution, float & fitness,
     // uses the "source" to store the original value of "solution"
     vector<bool>::swap(solution[index], source[index]);
   }
-
+  donation_attempts++;
   if (changed) {
     float new_fitness = evaluator->evaluate(solution);
     // NOTE: My previous work used strict improvement
@@ -295,6 +295,9 @@ void Population::improve(Random& rand, vector<bool> & solution, float & fitness,
                          evaluator);
       // Break loop if configured to stop_after_one or donate returned true
       different |= stop_after_one;
+    }
+    if (not different) {
+      donation_failures++;
     }
   }
 }
