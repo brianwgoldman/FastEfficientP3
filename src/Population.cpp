@@ -282,7 +282,7 @@ void Population::improve(Random& rand, vector<bool> & solution, float & fitness,
 
     // Find a donor which has at least one gene value different
     // from the current solution for this cluster of genes
-    while (unused >= 0 and not different) {
+    do {
       // Choose a donor
       index = std::uniform_int_distribution<int>(0, unused)(rand);
       working = options[index];
@@ -294,8 +294,7 @@ void Population::improve(Random& rand, vector<bool> & solution, float & fitness,
       different = donate(solution, fitness, solutions[working], cluster,
                          evaluator);
       // Break loop if configured to stop_after_one or donate returned true
-      different |= stop_after_one;
-    }
+    } while (unused >= 0 and not different and not stop_after_one);
     if (not different) {
       donation_failures++;
     }

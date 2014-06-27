@@ -14,12 +14,14 @@
 #include "HillClimb.h"
 #include "Configuration.h"
 #include "Optimizer.h"
+#include <sstream>
 
 // Inherits and implements the Optimizer interface
 class LTGA : public Optimizer {
  public:
   LTGA(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config);
   bool iterate() override;
+  string finalize() override;
   create_optimizer(LTGA);
 
  private:
@@ -39,6 +41,9 @@ class LTGA : public Optimizer {
       Population& next_pop);
   void generation();
   hill_climb::pointer hc;
+  // Used for recording purposes
+  shared_ptr<Evaluator> local_counter, cross_counter;
+  std::ostringstream metadata;
 };
 
 #endif /* LTGA_H_ */
