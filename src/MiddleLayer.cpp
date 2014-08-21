@@ -15,14 +15,16 @@ float Middle_Layer::evaluate(const vector<bool>& solution) {
     best_fitness = fitness;
     best_solution = solution;
     best_found = evaluations;
-    results.add(fitness, evaluations);
-    // If configured to do so, will append the current best
-    // to the output solution file
-    if (not disable_solution_outfile) {
-      std::ofstream output(outfile, std::fstream::app);
-      // Format is <fitness> <evaluations> <solution>
-      output << best_fitness << " " << evaluations << " ";
-      print(best_solution, output);
+    if (is_top_layer) {
+      results.add(fitness, evaluations);
+      // If configured to do so, will append the current best
+      // to the output solution file
+      if (not disable_solution_outfile) {
+        std::ofstream output(outfile, std::fstream::app);
+        // Format is <fitness> <evaluations> <solution>
+        output << best_fitness << " " << evaluations << " ";
+        print(best_solution, output);
+      }
     }
   }
   return fitness;

@@ -12,8 +12,8 @@ using std::endl;
 LTGA::LTGA(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config)
     : Optimizer(_rand, _evaluator, _config),
       pop(_config),
-      local_counter(new Middle_Layer(config, _evaluator)),
-      cross_counter(new Middle_Layer(config, _evaluator)) {
+      local_counter(new Middle_Layer(config, _evaluator, false)),
+      cross_counter(new Middle_Layer(config, _evaluator, false)) {
   pop_size = config.get<int>("pop_size");
   disable_binary_insert = config.get<int>("binary_insert") != 1;
 

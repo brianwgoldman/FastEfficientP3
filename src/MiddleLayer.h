@@ -27,13 +27,14 @@ class Middle_Layer : public Evaluator {
   Record results;
   // Constructs a middle layer around the problem it is going to be
   // mimicing
-  Middle_Layer(Configuration& config, shared_ptr<Evaluator> evaler)
+  Middle_Layer(Configuration& config, shared_ptr<Evaluator> evaler, bool top_layer=true)
       : evaluations(0),
         best_fitness(std::numeric_limits<int>::min()),
         best_found(0),
         results(config),
         outfile(config.get<string>("solution_file")),
         disable_solution_outfile(config.get<int>("disable_solution_outfile")),
+        is_top_layer(top_layer),
         evaluator(evaler) {
   }
   // The optimization method calls this evaluation, which is a pass through
@@ -43,7 +44,7 @@ class Middle_Layer : public Evaluator {
  protected:
   string outfile;
   bool disable_solution_outfile;
-
+  bool is_top_layer;
   shared_ptr<Evaluator> evaluator;
 };
 
