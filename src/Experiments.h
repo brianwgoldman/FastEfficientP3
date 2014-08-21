@@ -32,4 +32,11 @@ vector<Record> multirun(Random& rand, Configuration& config,
 int bisection(Random& rand, Configuration& config, evaluation::pointer problem,
               optimize::pointer solver);
 
+int fast_bisection(Random& rand, Configuration& config, evaluation::pointer problem,
+              optimize::pointer solver);
+
+int recurse(Random& rand, Configuration& config, evaluation::pointer problem,
+              optimize::pointer solver, int min, int max);
+
+
 #endif /* EXPERIMENTS_H_ */

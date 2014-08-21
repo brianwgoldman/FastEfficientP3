@@ -92,6 +92,9 @@ int main(int argc, char * argv[]) {
     // Performs bisection to tune the population size
     int pop_size = bisection(rand, config, problem, optimizer_method);
     cout << "POP SIZE " << pop_size << endl;
+  } else if (config.get<string>("experiment") == "fast") {
+    int pop_size = fast_bisection(rand, config, problem, optimizer_method);
+    cout << "POP SIZE " << pop_size << endl;
   } else if (config.get<string>("experiment") == "multirun") {
     // Performs a multiple run experiment
     vector<Record> records = multirun(rand, config, problem, optimizer_method);

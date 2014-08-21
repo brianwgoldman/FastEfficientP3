@@ -108,3 +108,53 @@ int bisection(Random& rand, Configuration& config, evaluation::pointer problem,
   }
   return max;
 }
+
+
+
+
+int fast_bisection(Random& rand, Configuration& config, evaluation::pointer problem,
+              optimize::pointer solver) {
+  // initial bounds
+  int min = 0;
+  int max = 1;
+  int result = -1;
+  // Double the maximum size until a successful run is found
+  do {
+    // double the bounds each time
+    min = max;
+    max *= 2;
+    // Perform multiple runs, stopping as soon as one of the runs failed to find
+    // the global optimum
+    result = recurse(rand, config, problem, solver, min, max);
+  } while (result == -1);
+  return result;
+}
+
+int recurse(Random& rand, Configuration& config, evaluation::pointer problem,
+              optimize::pointer solver, int min, int max) {
+  int runs = config.get<int>("runs");
+  float good_enough = config.get<int>("fitness_limit");
+  vector<Record> records;
+  int result;
+  for (int i = 0; i < runs; i++) {
+    config.set("pop_size", max);
+    std::cout << "Pop size: " << max << " Trying problem: " << i << std::endl;
+    auto results = single_run(rand, config, problem, solver, i);
+    if (results.best().first < good_enough) {
+      // fail this size, you have to get bigger
+      std::cout << "\tfailed" << std::endl;
+      return -1;
+    } else {
+      int guess = (max + min) / 2;
+      if (min != guess) {
+        result = recurse(rand, config, problem, solver, min, guess);
+        if (result != -1) {
+          return result;
+        } else {
+          min = guess;
+        }
+      }
+    }
+  }
+  return max;
+}
