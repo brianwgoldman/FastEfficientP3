@@ -91,6 +91,30 @@ float Deceptive3::evaluate(const vector<bool> & solution) {
   return float_round((3 * total) / solution.size(), precision);
 }
 
+float Bipolar::evaluate(const vector<bool> & solution) {
+  int partial;
+  double total = 0;
+  int k = trap_size / 2;
+  for (size_t i = 0; i < solution.size(); i += trap_size) {
+    // Find the number of bits set in each trap
+    partial = 0;
+    for (size_t index = i; index < i + trap_size; index++) {
+      partial += solution[index];
+    }
+    int score = abs(partial - k);
+    if (score == k) {
+      total += 1;
+    } else if (score == 0) {
+      total += 0.9;
+    } else if (score == 1) {
+      total += 0.8;
+    }
+  }
+
+  // Convert to percentage of total
+  return float_round(total * trap_size / solution.size(), precision);
+}
+
 // Attempts to load the problem file, otherwise constructs a new problem
 // solves it, and saves it to a problem file
 NearestNeighborNK::NearestNeighborNK(Configuration& config, int run_number) {

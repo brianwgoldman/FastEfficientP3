@@ -100,6 +100,21 @@ class Deceptive3 : public Evaluator {
   int precision;
 };
 
+class Bipolar : public Evaluator {
+ public:
+  Bipolar(Configuration& config, int run_number)
+      : trap_size(config.get<int>("trap_size")),
+        precision(config.get<int>("precision")) {
+  }
+  float evaluate(const vector<bool> & solution) override;
+  create_evaluator(Bipolar);
+
+ private:
+  int trap_size;
+  int precision;
+};
+
+
 // The Nearest Neighbor NK problem randomly generates
 // a fitness landscape where the fitness of each bit
 // relies on the k bits directly following it in the genome.
@@ -245,6 +260,7 @@ static std::unordered_map<string, pointer> lookup( {
     { "DeceptiveTrap", DeceptiveTrap::create },
     { "DeceptiveStepTrap", DeceptiveStepTrap::create },
     { "Deceptive3", Deceptive3::create },
+    { "Bipolar", Bipolar::create },
     { "NearestNeighborNK", NearestNeighborNK::create },
     { "LeadingOnes", LeadingOnes::create },
     { "HIFF", HIFF::create },
