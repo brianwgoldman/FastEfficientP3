@@ -22,6 +22,6 @@ result <- seven_plot(make_plot(data, "DeceptiveTrap", 154),
                      make_plot(data, "NearestNeighborNK", 150),
                      make_plot(data, "IsingSpinGlass", 144),
                      make_plot(data, "MAXSAT", 40),
-                     "Problem Size", "Median Evaluations to Success")
+                     "Evaluations", "Median Best Fitness")
 ggsave("fitness-over-time.eps", result, width=10, height=12)
 

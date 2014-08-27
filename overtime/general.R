@@ -7,6 +7,8 @@ load_data <- function(filename) {
   data <- read.csv(filename, header=TRUE)
   data <- subset(data, problem != "Deceptive3")
   data$solver <- factor(data$solver, levels = c("lambdalambda", "hc", "ltga", "p3", "hboa", "phboa"))
+  data$problem <- factor(data$problem, levels = c("DeceptiveTrap", "DeceptiveStepTrap", "HIFF", "Rastrigin",
+                                                  "NearestNeighborNK", "IsingSpinGlass", "MAXSAT"))
   return(data)
 }
 
@@ -20,8 +22,17 @@ median_100 <- function(data) {
   return(result)
 }
 
+median_100_low <- function(data) {
+  worst <- min(data, na.rm=TRUE)
+  data <- c(data, rep(worst-1, 100 - length(data)))
+  result <- median(data)
+  if(result < worst) {
+    result <- NA
+  }
+  return(result)
+}
 
-blind_colors <- c("#CC79A7", "#E69F00","#56B4E9", "#000000", "#D55E00", "#009E73", "#F0E442", "#0072B2")
+blind_colors <- c("#CC79A7", "#E69F00","#56B4E9", "#000000", "#D55E00", "#009E73", "#0072B2", "#F0E442")
 printer_colors <- c("#a6cee3", "#1f78b4", "#fb9a99", "#000000", "#b2df8a", "#33a02c", "#e31a1c")
 
 
