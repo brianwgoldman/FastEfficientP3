@@ -10,7 +10,6 @@
 // * If lamdba exceeds the solution length, reset lambda to 1 and start from a new randomly
 //   generated solution
 
-
 #include "LambdaLambda.h"
 
 // Constructs some tools used during evolution, performs initial evaluation

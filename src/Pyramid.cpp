@@ -60,20 +60,25 @@ bool Pyramid::iterate() {
 
 string Pyramid::finalize() {
   std::ostringstream out;
-  out << "# Restarts: " << restarts << " Hill: "
+  out << "# Restarts: "
+      << restarts
+      << " Hill: "
       // Convert back to Middle_Layer pointers to access the counters
-      << std::static_pointer_cast<Middle_Layer>(local_counter)->evaluations << " Cross: "
-      << std::static_pointer_cast<Middle_Layer>(cross_counter)->evaluations << endl;
+      << std::static_pointer_cast<Middle_Layer>(local_counter)->evaluations
+      << " Cross: "
+      << std::static_pointer_cast<Middle_Layer>(cross_counter)->evaluations
+      << endl;
   // output column headers
-  out << "Size\tSuccesses\tTies\tFailures\tFitness\tDonation_Attempts\tDonation_Failures" << endl;
-  for (const auto& pop: pops) {
+  out << "Size\tSuccesses\tTies\tFailures\tFitness\tDonation_Attempts\tDonation_Failures"
+      << endl;
+  for (const auto& pop : pops) {
     float total = 0;
-    for (const auto& solution: pop.solutions) {
+    for (const auto& solution : pop.solutions) {
       total += evaluator->evaluate(solution);
     }
-    out << pop.solutions.size() << "\t" << pop.successes << "\t" <<pop.ties << "\t"
-        << pop.failures << "\t" << total / pop.solutions.size() << "\t"
-        << pop.donation_attempts << "\t"  << pop.donation_failures << endl;
+    out << pop.solutions.size() << "\t" << pop.successes << "\t" << pop.ties
+        << "\t" << pop.failures << "\t" << total / pop.solutions.size() << "\t"
+        << pop.donation_attempts << "\t" << pop.donation_failures << endl;
   }
   return out.str();
 }

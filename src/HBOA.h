@@ -17,7 +17,10 @@ class Factorizer {
 
 class Factorial_Fraction {
  public:
-  Factorial_Fraction(size_t n=0): upper(n+1, 0), lower(n+1, 0) {}
+  Factorial_Fraction(size_t n = 0)
+      : upper(n + 1, 0),
+        lower(n + 1, 0) {
+  }
   void mul_by_factorial(size_t n);
   void div_by_factorial(size_t n);
   void simplify();
@@ -32,7 +35,13 @@ class Factorial_Fraction {
 };
 
 struct Bayesian_Tree {
-  Bayesian_Tree(size_t i=-1) : index(i), is_leaf(true), left(nullptr), right(nullptr), counts({0, 0}) {};
+  Bayesian_Tree(size_t i = -1)
+      : index(i),
+        is_leaf(true),
+        left(nullptr),
+        right(nullptr),
+        counts( { 0, 0 } ) {
+  }
   Bayesian_Tree(const Bayesian_Tree& rhs);
   ~Bayesian_Tree();
   friend void swap(Bayesian_Tree& lhs, Bayesian_Tree& rhs);
@@ -64,7 +73,8 @@ class Bayesian_Forest {
   void generate(Random& rand, vector<bool> & solution);
   friend std::ostream& operator<<(std::ostream& out, const Bayesian_Forest&);
  private:
-  void build_options(Bayesian_Tree& tree, vector<std::tuple<double, Bayesian_Tree*, size_t>>&) const;
+  void build_options(Bayesian_Tree& tree,
+                     vector<std::tuple<double, Bayesian_Tree*, size_t>>&) const;
   void filter(vector<std::tuple<double, Bayesian_Tree*, size_t>> &, double);
   vector<std::unordered_set<size_t>> prev, post;
   vector<Bayesian_Tree> trees;

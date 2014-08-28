@@ -396,7 +396,8 @@ void Bayesian_Forest::filter(
   swap(options, new_options);
 }
 
-HBOA::HBOA(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config)
+HBOA::HBOA(Random& _rand, shared_ptr<Evaluator> _evaluator,
+           Configuration& _config)
     : Optimizer(_rand, _evaluator, _config) {
   size_t pop_size = config.get<int>("pop_size");
 

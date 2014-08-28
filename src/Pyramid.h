@@ -19,12 +19,14 @@
 // Implements the Optimizer interface
 class Pyramid : public Optimizer {
  public:
-  Pyramid(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config)
+  Pyramid(Random& _rand, shared_ptr<Evaluator> _evaluator,
+          Configuration& _config)
       : Optimizer(_rand, _evaluator, _config),
         only_add_improvements(_config.get<int>("only_add_improvements")),
         hill_climber(_config.get<hill_climb::pointer>("hill_climber")),
         local_counter(new Middle_Layer(config, _evaluator, false)),
-        cross_counter(new Middle_Layer(config, _evaluator, false)), restarts(0) {
+        cross_counter(new Middle_Layer(config, _evaluator, false)),
+        restarts(0) {
   }
   // Iteratively improves the solution using the pyramid of populations
   // leverages the Population class extensively

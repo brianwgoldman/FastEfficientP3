@@ -109,11 +109,8 @@ int bisection(Random& rand, Configuration& config, evaluation::pointer problem,
   return max;
 }
 
-
-
-
-int fast_bisection(Random& rand, Configuration& config, evaluation::pointer problem,
-              optimize::pointer solver) {
+int fast_bisection(Random& rand, Configuration& config,
+                   evaluation::pointer problem, optimize::pointer solver) {
   // initial bounds
   int min = 0;
   int max = 1;
@@ -131,7 +128,7 @@ int fast_bisection(Random& rand, Configuration& config, evaluation::pointer prob
 }
 
 int recurse(Random& rand, Configuration& config, evaluation::pointer problem,
-              optimize::pointer solver, int min, int max) {
+            optimize::pointer solver, int min, int max) {
   int runs = config.get<int>("runs");
   float good_enough = config.get<int>("fitness_limit");
   vector<Record> records;

@@ -23,7 +23,8 @@ using std::shared_ptr;
 // Base class for optimization methods
 class Optimizer {
  public:
-  Optimizer(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config)
+  Optimizer(Random& _rand, shared_ptr<Evaluator> _evaluator,
+            Configuration& _config)
       : rand(_rand),
         evaluator(_evaluator),
         config(_config),
@@ -36,7 +37,9 @@ class Optimizer {
   // false when convergence is detected.
   virtual bool iterate() = 0;
 
-  virtual string finalize() {return string();}
+  virtual string finalize() {
+    return string();
+  }
 
  protected:
   // Tools useful to the actual optimization methods.

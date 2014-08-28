@@ -14,7 +14,8 @@
 // Inherits and implements the Optimizer interface
 class LambdaLambda : public Optimizer {
  public:
-  LambdaLambda(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config);
+  LambdaLambda(Random& _rand, shared_ptr<Evaluator> _evaluator,
+               Configuration& _config);
   virtual bool iterate() override;
   create_optimizer(LambdaLambda);
 
@@ -31,7 +32,7 @@ class LambdaLambda : public Optimizer {
   vector<bool> mutate(const vector<bool>& parent, const int flips);
   // returns a uniform crossover of the solutions using the crossover probability
   vector<bool> crossover(const vector<bool>& p1, const vector<bool>& p2,
-                         std::bernoulli_distribution& prob);
+      std::bernoulli_distribution& prob);
 };
 
 #endif /* LAMBDALAMBDA_H_ */

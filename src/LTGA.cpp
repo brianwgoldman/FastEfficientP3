@@ -9,7 +9,8 @@
 using std::endl;
 
 // Constructs and evaluates the initial population of solutions
-LTGA::LTGA(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config)
+LTGA::LTGA(Random& _rand, shared_ptr<Evaluator> _evaluator,
+           Configuration& _config)
     : Optimizer(_rand, _evaluator, _config),
       pop(_config),
       local_counter(new Middle_Layer(config, _evaluator, false)),
@@ -74,12 +75,13 @@ void LTGA::generation() {
 
   // data recording
   float total = 0;
-  for (const auto& solution: pop.solutions) {
+  for (const auto& solution : pop.solutions) {
     total += fitnesses[solution];
   }
-  metadata << pop.solutions.size() << "\t" << pop.successes << "\t" <<pop.ties << "\t"
-           << pop.failures << "\t" << total / pop.solutions.size() << "\t"
-           << pop.donation_attempts << "\t"  << pop.donation_failures << endl;
+  metadata << pop.solutions.size() << "\t" << pop.successes << "\t" << pop.ties
+           << "\t" << pop.failures << "\t" << total / pop.solutions.size()
+           << "\t" << pop.donation_attempts << "\t" << pop.donation_failures
+           << endl;
 
   pop = next_generation;
 }
@@ -101,12 +103,17 @@ bool LTGA::iterate() {
 
 string LTGA::finalize() {
   std::ostringstream out;
-  out << "# Restarts: " << pop_size << " Hill: "
+  out << "# Restarts: "
+      << pop_size
+      << " Hill: "
       // Convert back to Middle_Layer pointers to access the counters
-      << std::static_pointer_cast<Middle_Layer>(local_counter)->evaluations << " Cross: "
-      << std::static_pointer_cast<Middle_Layer>(cross_counter)->evaluations << endl;
+      << std::static_pointer_cast<Middle_Layer>(local_counter)->evaluations
+      << " Cross: "
+      << std::static_pointer_cast<Middle_Layer>(cross_counter)->evaluations
+      << endl;
   // output column headers
-  out << "Size\tSuccesses\tTies\tFailures\tFitness\tDonation_Attempts\tDonation_Failures" << endl;
+  out << "Size\tSuccesses\tTies\tFailures\tFitness\tDonation_Attempts\tDonation_Failures"
+      << endl;
   out << metadata.str();
   return out.str();
 }

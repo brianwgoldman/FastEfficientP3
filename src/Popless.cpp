@@ -4,7 +4,8 @@
 #include "Popless.h"
 #include "OptimizationCollection.h"
 
-Popless::Popless(Random& _rand, shared_ptr<Evaluator> _evaluator, Configuration& _config)
+Popless::Popless(Random& _rand, shared_ptr<Evaluator> _evaluator,
+                 Configuration& _config)
     : Optimizer(_rand, _evaluator, _config) {
   largest_size = config.get<int>("pop_size");
   // copy the configuration and set up the sub_optimizer

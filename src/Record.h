@@ -37,7 +37,8 @@ class Record {
   // The best fitness achieved in this optimization run
   const pair<float, int>& best() const;
   // Summarizes the end of run statistics for mutliple records
-  static array<int, 3> summarize(const vector<Record>& records, Configuration& config);
+  static array<int, 3> summarize(const vector<Record>& records,
+                                 Configuration& config);
   // access to the stored values:
   const vector<pair<float, int>>& progression() {
     return levels;

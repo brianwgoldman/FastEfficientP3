@@ -30,7 +30,6 @@ using std::shared_ptr;
 	return shared_ptr<Evaluator>(new name(config, run_number));\
 }
 
-
 // Base class to define the interface for evaluation functions
 class Evaluator {
  public:
@@ -106,14 +105,12 @@ class Bipolar : public Evaluator {
       : trap_size(config.get<int>("trap_size")),
         precision(config.get<int>("precision")) {
   }
-  float evaluate(const vector<bool> & solution) override;
-  create_evaluator(Bipolar);
+  float evaluate(const vector<bool> & solution) override;create_evaluator(Bipolar);
 
- private:
+private:
   int trap_size;
   int precision;
 };
-
 
 // The Nearest Neighbor NK problem randomly generates
 // a fitness landscape where the fitness of each bit
@@ -185,13 +182,13 @@ class MAXSAT : public Evaluator {
   float evaluate(const vector<bool> & solution) override;
   create_evaluator(MAXSAT);
  private:
-   int precision;
-   vector<std::array<int, 3>> clauses;
-   vector<std::array<bool, 3>> signs;
-   // Data structure used to select the negative signs on literals.
-   // Ensures proper distribution of negated literals.
-   vector<std::array<int, 3>> sign_options = { { { 0, 0, 1 } }, { { 0, 1, 0 } },
-       { { 1, 0, 0 } }, { { 1, 0, 0 } }, { { 0, 1, 1 } }, { { 1, 1, 1 } }, };
+  int precision;
+  vector<std::array<int, 3>> clauses;
+  vector<std::array<bool, 3>> signs;
+  // Data structure used to select the negative signs on literals.
+  // Ensures proper distribution of negated literals.
+  vector<std::array<int, 3>> sign_options = { { {0, 0, 1} }, { {0, 1, 0} },
+    { { 1, 0, 0} }, { {1, 0, 0} }, { {0, 1, 1} }, { {1, 1, 1} }, };
 };
 
 // The Ising Spin Glass problem is defined by a 2d toroidal grid
@@ -238,9 +235,9 @@ class Rastrigin : public Evaluator {
 class External : public Evaluator {
  public:
   External(Configuration& config, int run_number)
-     : script_file(config.get<string>("script_path")),
-       out_file(config.get<string>("external_out")),
-       in_file(config.get<string>("external_in")){
+      : script_file(config.get<string>("script_path")),
+        out_file(config.get<string>("external_out")),
+        in_file(config.get<string>("external_in")) {
   }
   float evaluate(const vector<bool> & solution) override;
   create_evaluator(External);

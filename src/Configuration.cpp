@@ -4,7 +4,6 @@
 // loading dictionaries from the command line / files
 // and making the contents available using desired types.
 
-
 #include "Configuration.h"
 using namespace std;
 
@@ -12,7 +11,7 @@ using namespace std;
 // keys, with the following argument then used as the value.
 // Everything else is considered a filename.
 void Configuration::parse(int argc, char* argv[]) {
-  for (int working=1; working < argc; working++) {
+  for (int working = 1; working < argc; working++) {
     // key found
     if (argv[working][0] == '-') {
       string key = string(argv[working] + 1);

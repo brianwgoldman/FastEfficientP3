@@ -544,7 +544,7 @@ float External::evaluate(const vector<bool>& solution) {
 
   // calls the script file
   int error_code = system(script_file.c_str());
-  if(error_code) {
+  if (error_code) {
     throw invalid_argument("Script file returned non zero success");
   }
 

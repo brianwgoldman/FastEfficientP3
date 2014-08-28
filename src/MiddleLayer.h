@@ -27,7 +27,8 @@ class Middle_Layer : public Evaluator {
   Record results;
   // Constructs a middle layer around the problem it is going to be
   // mimicing
-  Middle_Layer(Configuration& config, shared_ptr<Evaluator> evaler, bool top_layer=true)
+  Middle_Layer(Configuration& config, shared_ptr<Evaluator> evaler,
+               bool top_layer = true)
       : evaluations(0),
         best_fitness(std::numeric_limits<int>::min()),
         best_found(0),

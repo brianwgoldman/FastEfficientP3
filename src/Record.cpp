@@ -24,7 +24,8 @@ const pair<float, int>& Record::best() const {
 // * MAD - Median absolute deviation in the evaluations to success
 // * FAILURES - Number of times the global optimum was not found
 // Returns as an array of three values.
-array<int, 3> Record::summarize(const vector<Record>& records, Configuration& config) {
+array<int, 3> Record::summarize(const vector<Record>& records,
+                                Configuration& config) {
   array<int, 3> result = { { 0, 0, 0 } };
   vector<int> evals;
   float good_enough = config.get<int>("fitness_limit");
