@@ -18,5 +18,6 @@ P3
 gmon.out
 output.dat
 cfg.cfg
+output.meta
 *~
 .*
