@@ -66,4 +66,18 @@ src/%.o: ../src/%.cpp
 	@echo 'Finished building: $<'
 	@echo ' '
 
+src/Experiments.o: ../src/Experiments.cpp
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -std=c++11 -O3 -funroll-loops -pedantic -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"src/Experiments.d" -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+src/Population.o: ../src/Population.cpp
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -std=c++11 -O3 -funroll-loops -pedantic -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"src/Population.d" -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
 

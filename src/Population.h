@@ -54,9 +54,9 @@ class Population {
 
   // Keeps track of how often each possible pairing of bit values occurs in the population
   // for all pairs of genes
-  unordered_map<int, unordered_map<int, array<int, 4>>> occurrences;
-  // Tracks the entropy distance between pairs of genes
-  unordered_map<int, unordered_map<int, float> > pairwise_distance;
+  vector<vector<array<int, 4>>> occurrences;
+  // Tracks the entropy distance between clusters
+  vector<vector<float> > distances;
 
   // Tool used to calculate the negative entropy of a list of occurrences
   template <size_t T>
@@ -64,7 +64,7 @@ class Population {
 
   // Given a list of occurrences, updates the pairwise_distance for the
   // related genes
-  void update_entropy(int i, int j, const array<int, 4>& entry);
+  float update_entropy(int i, int j, const array<int, 4>& entry);
 
   // tool to access pairwise distance for two genes
   float get_distance(int x, int y);

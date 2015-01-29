@@ -1,7 +1,7 @@
 #include "HBOA.h"
 #include <sstream>
 using namespace std;
-
+/*
 Factorizer::Factorizer(size_t n)
     : factors(n + 1, 1) {
   for (size_t i = 2; i <= sqrt(n); i++) {
@@ -26,7 +26,7 @@ void Factorizer::operator()(vector<size_t>& buckets) const {
     }
   }
 }
-
+*/
 void Factorial_Fraction::mul_by_factorial(size_t n) {
   safe_size(n);
   for (size_t i = 2; i <= n; i++) {
@@ -315,6 +315,7 @@ void Bayesian_Forest::build_forest(Random & rand) {
   }
 
   // ensures minimum quality for the split
+  // TODO Consider flipping inequality to match paper
   double threshold = pow(2, -0.5 * log2(added));
   filter(options, threshold);
   shuffle(options.begin(), options.end(), rand);
@@ -429,7 +430,8 @@ bool HBOA::iterate() {
   // binary tournament
   uniform_int_distribution<int> choose(0, solutions.size() - 1);
   int x, y;
-  for (size_t i = 0; i < selection.size(); i++) {
+
+  for (size_t i = 0; i < solutions.size(); i++) {
     x = choose(rand);
     y = choose(rand);
     // compete adjacent solutions in the solutions vector

@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <fstream>
 #include <unordered_set>
-
+/*
 class Factorizer {
  public:
   Factorizer(size_t n);
@@ -14,7 +14,7 @@ class Factorizer {
  private:
   vector<size_t> factors;
 };
-
+*/
 class Factorial_Fraction {
  public:
   Factorial_Fraction(size_t n = 0)

@@ -11,6 +11,7 @@ void Record::add(float fitness, int evals) {
   if (verbosity > 1) {
     std::cout << fitness << "\t" << evals << std::endl;
   }
+  last_update_time = std::chrono::steady_clock::now();
   levels.push_back(pair<float, int>(fitness, evals));
 }
 
@@ -28,7 +29,7 @@ array<int, 3> Record::summarize(const vector<Record>& records,
                                 Configuration& config) {
   array<int, 3> result = { { 0, 0, 0 } };
   vector<int> evals;
-  float good_enough = config.get<int>("fitness_limit");
+  float good_enough = config.get<float>("fitness_limit");
   // look at the best found in each run
   for (const auto& record : records) {
     auto best = record.best();

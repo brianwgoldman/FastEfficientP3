@@ -10,6 +10,7 @@
 #include <utility>
 #include <array>
 #include <stdlib.h>
+#include <chrono>
 #include "Util.h"
 #include "Configuration.h"
 
@@ -43,11 +44,20 @@ class Record {
   const vector<pair<float, int>>& progression() {
     return levels;
   }
+
+  void start_clock() {
+    start_time = std::chrono::steady_clock::now();
+  }
+
+  float seconds_used() {
+    return std::chrono::duration<float>(last_update_time - start_time).count();
+  }
   string metadata;
  private:
   // Raw stored data
   vector<pair<float, int>> levels;
-
+  std::chrono::steady_clock::time_point start_time;
+  std::chrono::steady_clock::time_point last_update_time;
   int verbosity;
 };
 

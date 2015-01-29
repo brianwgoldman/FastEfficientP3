@@ -21,6 +21,9 @@ Population::Population(Configuration& config) {
     cluster_ordering[i] = i;
   }
 
+  distances.resize(clusters.size(), vector<float>(clusters.size(), -1));
+  occurrences.resize(length, vector<array<int, 4>>(length));
+
   // sets up the ordering function
   ordering = ordering_lookup[config.get<string>("cluster_ordering")];
   no_singles = config.get<int>("no_singles");
@@ -38,18 +41,18 @@ void Population::add(const vector<bool> & solution, bool use_in_tree) {
   }
 
   // loop through all pairs of genes and update the pairwise counts / entropy
-  for (size_t i = 0; i < solution.size() - 1; i++) {
-    for (size_t j = i + 1; j < solution.size(); j++) {
+  for (size_t i = 0; i < length - 1; i++) {
+    for (size_t j = i + 1; j < length; j++) {
       auto& entry = occurrences[i][j];
       // Updates the entry of the 4 long array based on the two bits
       entry[(solution[j] << 1) + solution[i]]++;
-      update_entropy(i, j, entry);
+      //update_entropy(i, j, entry);
     }
   }
 }
 
 // Records the actual pairwise distance based of the two genes based on the counts
-void Population::update_entropy(int i, int j, const array<int, 4>& entry) {
+float Population::update_entropy(int i, int j, const array<int, 4>& entry) {
   array<int, 4> bits;
   // extracts the occurrences of the individual bits
   bits[0] = entry[0] + entry[2];  // i zero
@@ -67,7 +70,7 @@ void Population::update_entropy(int i, int j, const array<int, 4>& entry) {
   if (together) {
     ratio = 2 - (separate / together);
   }
-  pairwise_distance[i][j] = ratio;
+  return ratio;
 }
 
 // Wrapper to ensure that x < y when accessing the pairwise_distance table
@@ -75,7 +78,7 @@ float Population::get_distance(int x, int y) {
   if (x > y) {
     std::swap(x, y);
   }
-  return pairwise_distance[x][y];
+  return update_entropy(x, y, occurrences[x][y]);
 }
 
 // Uses the entropy table to construct the clusters to use for crossover.
@@ -93,8 +96,6 @@ void Population::rebuild_tree(Random& rand) {
   shuffle(clusters.begin(), clusters.begin() + length, rand);
 
   // keeps track of the distances between clusters
-  vector<vector<float> > distances(clusters.size(),
-                                   vector<float>(clusters.size(), -1));
 
   // Find the initial distances between the clusters
   for (size_t i = 0; i < length - 1; i++) {
@@ -305,12 +306,22 @@ void Population::improve(Random& rand, vector<bool> & solution, float & fitness,
 void Population::smallest_first(Random& rand,
                                 const vector<vector<int>>& clusters,
                                 vector<int>& cluster_ordering) {
-  // NOTE: My previous work did not shuffle here
   std::shuffle(cluster_ordering.begin(), cluster_ordering.end(), rand);
-  std::stable_sort(
-      cluster_ordering.begin(),
-      cluster_ordering.end(),
-      [clusters](int x, int y) {return clusters[x].size() < clusters[y].size();});
+  size_t bin_count = 0;
+  for (const auto& index : cluster_ordering) {
+    bin_count = max(bin_count, clusters[index].size());
+  }
+  vector<vector<int>> bins(bin_count + 1);
+  for (const auto& index : cluster_ordering) {
+    bins[clusters[index].size()].push_back(index);
+  }
+  size_t working=0;
+  for (const auto& bin : bins) {
+    for (const auto& index : bin) {
+      cluster_ordering[working] = index;
+      working++;
+    }
+  }
 }
 
 // Order the clusters such that the last to be linked is the first to appear
