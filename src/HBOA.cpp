@@ -446,16 +446,23 @@ bool HBOA::iterate() {
   // storage for the newly generated solution
   float fitness;
   vector<bool> solution(length);
+  vector<vector<bool>> new_pop;
+  vector<float> new_fit;
   for (size_t i = 0; i < solutions.size(); i++) {
     model.generate(rand, solution);
     fitness = evaluator->evaluate(solution);
     hc(rand, solution, fitness, evaluator);
     int choice = rtr_nearest(solution);
     if (fitnesses[choice] < fitness) {
-      solutions[choice] = solution;
-      fitnesses[choice] = fitness;
+      new_pop.push_back(solution);
+      new_fit.push_back(fitness);
+    } else {
+      new_pop.push_back(solutions[choice]);
+      new_fit.push_back(fitnesses[choice]);
     }
   }
+  swap(solutions, new_pop);
+  swap(fitnesses, new_fit);
   // termination is when generations equals length
   return completed_generations < length;
 }
