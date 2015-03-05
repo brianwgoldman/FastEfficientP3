@@ -1,12 +1,10 @@
-P3
+Fast and Efficient Black Box Optimization using the Parameter-less Population Pyramid
 ==
 
-Parameterless Population Pyramid
-
-To compile you will need C++11.  We use gcc version 4.7.2 for our complilation.
+To compile you will need C++11.  We use gcc version 4.8.3 for our complilation.
 
 Our build system uses Makefiles to build.  You can compile the release version
-by changing directory to Release and calling "make".
+by changing directory to Release and calling "make P3".
 
 All of the source code is available in the 'src' directory.
 
@@ -23,9 +21,10 @@ Release/P3 config/default.cfg config/p3.cfg -problem NearestNeighborNK -length 5
 
 This line will use the default configuration, replacing configuration values with those
 found in p3.cfg, setting the problem to Nearest Neighbor NK with a genome size of 50.
-
-All of the individual configuration files and output files are contained in raw.tar.
-
-The results are aggregated in complete.csv for use by the plotter.R and stats.R scripts.
+All experiments combined "default.cfg" "tune.cfg" and the solver specific configuration file.
 
 Also, see main.cpp for implementation related details.
+
+All of the processed output files are contained in data/csv_files.tar.gz.
+All data analysis was performed using these files and the scripts found
+in the data folder.
