@@ -1,9 +1,9 @@
-/*
- * Pyramid.cpp
- *
- *  Created on: Jun 26, 2013
- *      Author: goldman
- */
+// Brian Goldman
+
+// Implemention of the Parameter-less Population Pyramid
+// Full description given in our publication:
+// "Fast and Efficient Black Box Optimization using the Parameter-less Population Pyramid"
+// by B. W. Goldman and W. F. Punch
 
 #include "Pyramid.h"
 #include <sstream>

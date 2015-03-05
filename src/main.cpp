@@ -5,7 +5,7 @@
 // single runs, multiple runs, or bisection tuning of population size.
 
 // -------------- Building ---------------------------
-// Compilation requires C++11.  We use g++4.7 for our experiments.
+// Compilation requires C++11.  We use g++4.8.3 for our experiments.
 // We provide makefiles in the Debug and Release folders.  To achieve best performance,
 // use the Release makefile.  Compiles to the executable name P3
 
@@ -93,6 +93,7 @@ int main(int argc, char * argv[]) {
     int pop_size = bisection(rand, config, problem, optimizer_method);
     cout << "POP SIZE " << pop_size << endl;
   } else if (config.get<string>("experiment") == "fast") {
+    // Performs the "fast" bisection method, a new way of performing bisection.
     int pop_size = fast_bisection(rand, config, problem, optimizer_method);
     cout << "POP SIZE " << pop_size << endl;
   } else if (config.get<string>("experiment") == "multirun") {
@@ -122,6 +123,7 @@ int main(int argc, char * argv[]) {
     out.close();
     metadata = record.metadata;
   }
+  // Output the metadata file
   if (not metadata.empty() and not disable_metadata) {
     auto lastindex = dat_file.find_last_of(".");
     ofstream meta(dat_file.substr(0, lastindex) + ".meta");

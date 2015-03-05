@@ -42,9 +42,10 @@ class Population {
   // improved values after application.
   void improve(Random& rand, vector<bool> & solution, float & fitness,
                shared_ptr<Evaluator> evaluator);
-  // Access the entropy table to construct a linkage tree
+  // Use the pairwise frequency table to construct a linkage tree
   void rebuild_tree(Random& rand);
 
+  // Metadata recording about the behavior of crossover
   size_t successes, ties, failures, donation_attempts, donation_failures;
 
  private:
@@ -60,14 +61,13 @@ class Population {
 
   // Tool used to calculate the negative entropy of a list of occurrences
   template <size_t T>
-  float neg_entropy(const array<int, T>& counts, const float& total);
+  float neg_entropy(const array<int, T>& counts, const float& total) const;
 
-  // Given a list of occurrences, updates the pairwise_distance for the
-  // related genes
-  float update_entropy(int i, int j, const array<int, 4>& entry);
+  // Given a list of occurrences, return the pairwise_distance
+  float get_distance(const array<int, 4>& entry) const;
 
   // tool to access pairwise distance for two genes
-  float get_distance(int x, int y);
+  float get_distance(int x, int y) const;
 
   // Donates the genes specified by "cluster" from "source" into "solution".
   // If the solution was modified by this action, it is evaluated.  If the new
@@ -117,7 +117,7 @@ class Population {
 // Returns the negative of the entropy given the list of counts and a total number,
 // where total = sum(counts)
 template<size_t T>
-float Population::neg_entropy(const array<int, T>& counts, const float& total) {
+float Population::neg_entropy(const array<int, T>& counts, const float& total) const {
   float sum = 0;
   float p;
   for (const auto& value : counts) {

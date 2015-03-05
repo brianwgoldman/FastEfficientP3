@@ -1,8 +1,8 @@
 // Brian Goldman
 
-// Implemention of the Parameter-less Populaiton Pyramid
+// Implemention of the Parameter-less Population Pyramid
 // Full description given in our publication:
-// "Parameter-less Population Pyramid"
+// "Fast and Efficient Black Box Optimization using the Parameter-less Population Pyramid"
 // by B. W. Goldman and W. F. Punch
 
 #ifndef PYRAMID_H_
@@ -36,6 +36,7 @@ class Pyramid : public Optimizer {
   // * hill climbing
   // * crossover with each level of the pyramid (climb function)
   bool iterate() override;
+  // Flatten metadata recorded about search into a string.
   string finalize() override;
   create_optimizer(Pyramid);
 

@@ -45,10 +45,12 @@ class Record {
     return levels;
   }
 
+  // Used to track total run time.
   void start_clock() {
     start_time = std::chrono::steady_clock::now();
   }
 
+  // Returns the number of seconds elapsed betwee start_clock() and best fitness found.
   float seconds_used() {
     return std::chrono::duration<float>(last_update_time - start_time).count();
   }

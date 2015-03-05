@@ -91,6 +91,7 @@ float Deceptive3::evaluate(const vector<bool> & solution) {
   return float_round((3 * total) / solution.size(), precision);
 }
 
+// Iterate over traps, sum partial scores
 float Bipolar::evaluate(const vector<bool> & solution) {
   int partial;
   double total = 0;
@@ -193,7 +194,7 @@ NearestNeighborNK::NearestNeighborNK(Configuration& config, int run_number) {
 }
 
 // Used in finding the minimum / maximum of the generated problem.
-//
+// Finds the fitness contribution of setting a particular section in a specific way
 float NearestNeighborNK::chunk_fitness(trimap& known, size_t chunk_index,
                                        size_t a, size_t b) {
   // If we know the fitness, return it

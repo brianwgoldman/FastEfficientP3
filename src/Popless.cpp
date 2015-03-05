@@ -42,4 +42,3 @@ bool Popless::iterate() {
   }
   return true;
 }
-

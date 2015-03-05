@@ -1,9 +1,8 @@
-/*
- * Experiments.cpp
- *
- *  Created on: Jul 20, 2013
- *      Author: goldman
- */
+// Brian Goldman
+
+// There are a couple of different kind of experiment performed with
+// this software, each producing different types of data.  These
+// are the drivers of optimization.
 
 #include "Experiments.h"
 
@@ -31,7 +30,7 @@ Record single_run(Random& rand, Configuration& config,
   return recorder->results;
 }
 
-// Performs multiple runs of optization
+// Performs multiple runs of optimization
 vector<Record> multirun(Random& rand, Configuration& config,
                         evaluation::pointer problem, optimize::pointer solver) {
   int runs = config.get<int>("runs");
@@ -112,6 +111,8 @@ int bisection(Random& rand, Configuration& config, evaluation::pointer problem,
   return max;
 }
 
+// Performs a bisection method where a single success decreases predicted population size,
+// and a single failure returns to the previously predicted size.
 int fast_bisection(Random& rand, Configuration& config,
                    evaluation::pointer problem, optimize::pointer solver) {
   // initial bounds
@@ -130,10 +131,12 @@ int fast_bisection(Random& rand, Configuration& config,
   return result;
 }
 
+// Recursively drills down from a given size until either it finds the correct
+// population size, or you discover that max isn't big enough
 int recurse(Random& rand, Configuration& config, evaluation::pointer problem,
             optimize::pointer solver, int min, int max) {
   int runs = config.get<int>("runs");
-  float good_enough = config.get<int>("fitness_limit");
+  float good_enough = config.get<float>("fitness_limit");
   vector<Record> records;
   int result;
   for (int i = 0; i < runs; i++) {
@@ -148,9 +151,11 @@ int recurse(Random& rand, Configuration& config, evaluation::pointer problem,
       int guess = (max + min) / 2;
       if (min != guess) {
         result = recurse(rand, config, problem, solver, min, guess);
+        // If you found the correct population size
         if (result != -1) {
           return result;
         } else {
+          // You failed, increase the minimum
           min = guess;
         }
       }

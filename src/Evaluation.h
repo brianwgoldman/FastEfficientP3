@@ -81,7 +81,6 @@ class DeceptiveStepTrap : public Evaluator {
   int step_size;
   int offset;
   int precision;
-
 };
 
 // Deceptive trap of order 3, similar to the Deceptive Trap problem,

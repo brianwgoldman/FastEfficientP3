@@ -101,6 +101,7 @@ bool LTGA::iterate() {
   return true;
 }
 
+// Extract end of run logging information to be printed to meta files.
 string LTGA::finalize() {
   std::ostringstream out;
   out << "# Restarts: "

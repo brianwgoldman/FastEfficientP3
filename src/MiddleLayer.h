@@ -26,7 +26,7 @@ class Middle_Layer : public Evaluator {
   std::vector<bool> best_solution;
   Record results;
   // Constructs a middle layer around the problem it is going to be
-  // mimicing
+  // mimicking
   Middle_Layer(Configuration& config, shared_ptr<Evaluator> evaler,
                bool top_layer = true)
       : evaluations(0),

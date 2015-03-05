@@ -26,6 +26,8 @@ class LTGA : public Optimizer {
 
  private:
   size_t pop_size;
+  // Configuration option to use only the winners of a binary tournament
+  // during model building. Set by inverting "binary_insert" value
   bool disable_binary_insert;
   // Used to store the population and its entropy table
   Population pop;

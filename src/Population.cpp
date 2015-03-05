@@ -21,6 +21,7 @@ Population::Population(Configuration& config) {
     cluster_ordering[i] = i;
   }
 
+  // Set up the storage tables needed for model building
   distances.resize(clusters.size(), vector<float>(clusters.size(), -1));
   occurrences.resize(length, vector<array<int, 4>>(length));
 
@@ -46,13 +47,12 @@ void Population::add(const vector<bool> & solution, bool use_in_tree) {
       auto& entry = occurrences[i][j];
       // Updates the entry of the 4 long array based on the two bits
       entry[(solution[j] << 1) + solution[i]]++;
-      //update_entropy(i, j, entry);
     }
   }
 }
 
-// Records the actual pairwise distance based of the two genes based on the counts
-float Population::update_entropy(int i, int j, const array<int, 4>& entry) {
+// Calculates the actual pairwise distance based of the two genes based on the counts
+float Population::get_distance(const array<int, 4>& entry) const {
   array<int, 4> bits;
   // extracts the occurrences of the individual bits
   bits[0] = entry[0] + entry[2];  // i zero
@@ -74,11 +74,11 @@ float Population::update_entropy(int i, int j, const array<int, 4>& entry) {
 }
 
 // Wrapper to ensure that x < y when accessing the pairwise_distance table
-float Population::get_distance(int x, int y) {
+float Population::get_distance(int x, int y) const {
   if (x > y) {
     std::swap(x, y);
   }
-  return update_entropy(x, y, occurrences[x][y]);
+  return get_distance(occurrences[x][y]);
 }
 
 // Uses the entropy table to construct the clusters to use for crossover.
@@ -95,8 +95,6 @@ void Population::rebuild_tree(Random& rand) {
   // Shuffle the single variable clusters
   shuffle(clusters.begin(), clusters.begin() + length, rand);
 
-  // keeps track of the distances between clusters
-
   // Find the initial distances between the clusters
   for (size_t i = 0; i < length - 1; i++) {
     for (size_t j = i + 1; j < length; j++) {
@@ -105,8 +103,9 @@ void Population::rebuild_tree(Random& rand) {
       distances[j][i] = distances[i][j];
     }
   }
-
+  // The indices of the merging clusters
   size_t first, second;
+  // Used to find which two clusters are closest together
   size_t final, best_index;
   // Each iteration we add some amount to the path, and remove the last
   // two elements.  This keeps track of how much of usable is in the path.
@@ -236,14 +235,16 @@ bool Population::donate(vector<bool> & solution, float & fitness,
     // uses the "source" to store the original value of "solution"
     vector<bool>::swap(solution[index], source[index]);
   }
+  // Tracks how many times a donation is made
   donation_attempts++;
   if (changed) {
     float new_fitness = evaluator->evaluate(solution);
-    // NOTE: My previous work used strict improvement
     if (fitness <= new_fitness) {
       if (fitness < new_fitness) {
+        // Counts how often fitness strictly improved
         successes++;
       } else {
+        // Counts how often neutral motion was made
         ties++;
       }
       // improvement made, keep change to solution
@@ -253,6 +254,7 @@ bool Population::donate(vector<bool> & solution, float & fitness,
         source[index] = solution[index];
       }
     } else {
+      // Counts how often the crossover made things worse
       failures++;
       // revert both solution and source
       for (const auto& index : cluster) {
@@ -306,15 +308,21 @@ void Population::improve(Random& rand, vector<bool> & solution, float & fitness,
 void Population::smallest_first(Random& rand,
                                 const vector<vector<int>>& clusters,
                                 vector<int>& cluster_ordering) {
+  // Shuffle ordering to break ties randomly
   std::shuffle(cluster_ordering.begin(), cluster_ordering.end(), rand);
+  // Determine how many bins are needed for bin sort
   size_t bin_count = 0;
   for (const auto& index : cluster_ordering) {
     bin_count = max(bin_count, clusters[index].size());
   }
   vector<vector<int>> bins(bin_count + 1);
+
+  // put each cluster index into a bin based on the cluster's size
   for (const auto& index : cluster_ordering) {
     bins[clusters[index].size()].push_back(index);
   }
+
+  // extract cluster indices from the bins.
   size_t working=0;
   for (const auto& bin : bins) {
     for (const auto& index : bin) {

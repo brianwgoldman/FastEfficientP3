@@ -3,7 +3,8 @@
 // There are many ways to perform local search, and this
 // file contains the implementation for a lot of configuration options.
 // In all published experiments (so far) "first_improvement" was used,
-// but other methods were informally tested.
+// for the Random Restart HC and P3, with "no_action" used for LTGA and hBOA.
+// Other methods were informally tested.
 
 #ifndef HILLCLIMB_H_
 #define HILLCLIMB_H_
