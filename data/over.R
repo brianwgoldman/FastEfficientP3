@@ -1,7 +1,7 @@
 #!/usr/bin/Rscript
 source("general.R")
 
-data <- load_data("over-old.csv")
+data <- load_data("over.csv")
 
 make_plot <- function(all_data, problem_name, length_choice) {
   plt <- ggplot(data = subset(all_data, problem==problem_name & length==length_choice),
