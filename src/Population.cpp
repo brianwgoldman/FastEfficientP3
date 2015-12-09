@@ -7,7 +7,7 @@
 #include <iostream>
 using namespace std;
 
-Population::Population(Configuration& config) {
+Population::Population(Configuration& config, size_t _level) {
   length = config.get<int>("length");
   // initializes clusters to have the maximium possible number of spaces
   clusters.resize(2 * length - 1);
@@ -32,6 +32,8 @@ Population::Population(Configuration& config) {
   precision = config.get<int>("precision");
   keep_zeros = config.get<int>("keep_zeros");
   successes = ties = failures = donation_attempts = donation_failures = 0;
+  level=_level;
+  restrict_cluster_size = config.get<int>("restrict_cluster_size");
 }
 
 // Puts the solution into the population, updates the entropy table as requested
@@ -203,6 +205,14 @@ void Population::rebuild_tree(Random& rand) {
       useful[i] = false;
     }
   }
+  if (restrict_cluster_size) {
+    size_t max_size = 2 << level;
+    for (size_t i = 0; i < useful.size(); i++) {
+      if (clusters[i].size() > max_size) {
+        useful[i] = false;
+      }
+    }
+  }
 
   // The last cluster contains all variables and is always useless
   useful.back() = false;
@@ -219,6 +229,43 @@ void Population::rebuild_tree(Random& rand) {
 
   // Applies the desired ordering to the clusters
   ordering(rand, clusters, cluster_ordering);
+}
+
+bool Population::k_modeled() {
+  size_t target_size = 2 << level;
+  size_t hit = 0;
+  for (auto& cluster_index : cluster_ordering) {
+    auto cluster = clusters[cluster_index];
+    if (cluster.size() == target_size) {
+      sort(cluster.begin(), cluster.end());
+      for (size_t i=1; i < cluster.size(); i++) {
+        if (cluster[i-1] + 1 != cluster[i]) {
+          return false;
+        }
+      }
+      bool all_zero = false;
+      bool all_one = false;
+      for (const auto & solution : solutions) {
+        size_t count = 0;
+        for (const auto c : cluster) {
+          count += solution[c];
+        }
+        if (count == 0) {
+          all_zero = true;
+        } else if (count == cluster.size()) {
+          all_one = true;
+        }
+        if (all_zero and all_one) {
+          break;
+        }
+      }
+      if (not all_zero or not all_one) {
+        return false;
+      }
+      hit += cluster.size();
+    }
+  }
+  return hit == length;
 }
 
 // Moves gene values for "cluster" genes from "source" into "solution".  Performs

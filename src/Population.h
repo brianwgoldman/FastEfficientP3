@@ -28,7 +28,7 @@ using std::log;
 // Stores all information related to a population
 class Population {
  public:
-  Population(Configuration& config);
+  Population(Configuration& config, size_t _level=0);
   virtual ~Population() = default;
   // Storage for all of the solutions in the population
   vector<vector<bool> > solutions;
@@ -47,6 +47,8 @@ class Population {
 
   // Metadata recording about the behavior of crossover
   size_t successes, ties, failures, donation_attempts, donation_failures;
+
+  bool k_modeled();
 
  private:
   // Tools used for cluster creation
@@ -112,6 +114,9 @@ class Population {
   int precision;
   // Even if two clusters have zero distance, keep them both as crossover clusters.
   bool keep_zeros;
+
+  size_t level;
+  bool restrict_cluster_size;
 };
 
 // Returns the negative of the entropy given the list of counts and a total number,

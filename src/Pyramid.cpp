@@ -31,14 +31,20 @@ void Pyramid::climb(vector<bool> & solution, float & fitness) {
 bool Pyramid::add_unique(const vector<bool> & solution, size_t level) {
   if (seen.find(solution) == seen.end()) {
     if (pops.size() == level) {
+      if (config.get<int>("wait_until_k_modeled"))
+        if (pops.size() > 0 and not pops.back().k_modeled()) {
+          return false;
+      }
       // Create new levels as necessary
-      pops.push_back(Population(config));
+      pops.push_back(Population(config, level));
     }
     // Add the solution and rebuild the tree
     pops[level].add(solution);
     pops[level].rebuild_tree(rand);
     // track that this solution is now in the pyramid
-    seen.insert(solution);
+    if (config.get<int>("prevent_duplicates")) {
+      seen.insert(solution);
+    }
     return true;
   }
   return false;
