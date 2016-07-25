@@ -7,6 +7,8 @@
 #include <iostream>
 using namespace std;
 
+vector<vector<float>> Population::distances;
+
 Population::Population(Configuration& config, size_t _level) {
   length = config.get<int>("length");
   // initializes clusters to have the maximium possible number of spaces

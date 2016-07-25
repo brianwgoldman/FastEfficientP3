@@ -59,7 +59,7 @@ class Population {
   // for all pairs of genes
   vector<vector<array<int, 4>>> occurrences;
   // Tracks the entropy distance between clusters
-  vector<vector<float> > distances;
+  static vector<vector<float> > distances;
 
   // Tool used to calculate the negative entropy of a list of occurrences
   template <size_t T>

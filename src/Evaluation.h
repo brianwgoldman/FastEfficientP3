@@ -247,6 +247,21 @@ class External : public Evaluator {
   string in_file;
 };
 
+class JumpK : public Evaluator {
+ public:
+  JumpK(Configuration& config, int run_number)
+      : k(config.get<int>("k")),
+        precision(config.get<int>("precision")) {
+  }
+  float evaluate(const vector<bool> & solution) override;
+  create_evaluator(JumpK);
+
+ private:
+  int k;
+  int precision;
+};
+
+
 // This mapping is used to convert a problem's name into an instance
 // of that Evaluator object
 namespace evaluation {
@@ -264,6 +279,7 @@ static std::unordered_map<string, pointer> lookup( {
     { "IsingSpinGlass", IsingSpinGlass::create },
     { "Rastrigin", Rastrigin::create },
     { "External", External::create },
+    { "JumpK", JumpK::create },
 });
 }
 

@@ -555,3 +555,17 @@ float External::evaluate(const vector<bool>& solution) {
   input >> fitness;
   return fitness;
 }
+
+float JumpK::evaluate(const vector<bool> & solution) {
+  size_t count = 0;
+  for (const bool & bit : solution) {
+    count += bit;
+  }
+  float score;
+  if (count == solution.size() or count <= solution.size() - k) {
+    score = count + k;
+  } else {
+    score = solution.size() - count;
+  }
+  return score / (solution.size() + k);
+}
