@@ -26,7 +26,7 @@ Population::Population(Configuration& config, size_t _level) {
   // Set up the storage tables needed for model building
   distances.resize(clusters.size(), vector<float>(clusters.size(), -1));
   occurrences.resize(length, vector<array<int, 4>>());
-  for (size_t i=1; i < length; i++) {
+  for (size_t i = 1; i < length; i++) {
     occurrences[i].resize(i);
   }
 
@@ -37,7 +37,7 @@ Population::Population(Configuration& config, size_t _level) {
   precision = config.get<int>("precision");
   keep_zeros = config.get<int>("keep_zeros");
   successes = ties = failures = donation_attempts = donation_failures = 0;
-  level=_level;
+  level = _level;
   restrict_cluster_size = config.get<int>("restrict_cluster_size");
 }
 
@@ -236,6 +236,9 @@ void Population::rebuild_tree(Random& rand) {
   ordering(rand, clusters, cluster_ordering);
 }
 
+// Used to implement "Simplified P3" in "Runtime Analysis
+// of the Parameter-less Population Pyramid". Turned
+// off by default
 bool Population::k_modeled() {
   size_t target_size = 2 << level;
   size_t hit = 0;
@@ -243,8 +246,8 @@ bool Population::k_modeled() {
     auto cluster = clusters[cluster_index];
     if (cluster.size() == target_size) {
       sort(cluster.begin(), cluster.end());
-      for (size_t i=1; i < cluster.size(); i++) {
-        if (cluster[i-1] + 1 != cluster[i]) {
+      for (size_t i = 1; i < cluster.size(); i++) {
+        if (cluster[i - 1] + 1 != cluster[i]) {
           return false;
         }
       }
@@ -375,7 +378,7 @@ void Population::smallest_first(Random& rand,
   }
 
   // extract cluster indices from the bins.
-  size_t working=0;
+  size_t working = 0;
   for (const auto& bin : bins) {
     for (const auto& index : bin) {
       cluster_ordering[working] = index;

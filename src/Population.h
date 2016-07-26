@@ -28,7 +28,7 @@ using std::log;
 // Stores all information related to a population
 class Population {
  public:
-  Population(Configuration& config, size_t _level=0);
+  Population(Configuration& config, size_t _level = 0);
   virtual ~Population() = default;
   // Storage for all of the solutions in the population
   vector<vector<bool> > solutions;

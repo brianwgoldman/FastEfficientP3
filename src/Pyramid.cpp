@@ -34,7 +34,7 @@ bool Pyramid::add_unique(const vector<bool> & solution, size_t level) {
       if (config.get<int>("wait_until_k_modeled"))
         if (pops.size() > 0 and not pops.back().k_modeled()) {
           return false;
-      }
+        }
       // Create new levels as necessary
       pops.push_back(Population(config, level));
     }
