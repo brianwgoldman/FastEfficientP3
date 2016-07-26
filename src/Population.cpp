@@ -68,9 +68,9 @@ float Population::get_distance(const array<int, 4>& entry) const {
   bits[3] = entry[2] + entry[3];  // j one
   float total = bits[0] + bits[1];
   // entropy of the two bits on their own
-  float separate = neg_entropy(bits, total);
+  float separate = entropy(bits, total);
   // entropy of the two bits as a single unit
-  float together = neg_entropy(entry, total);
+  float together = entropy(entry, total);
 
   // If together there is 0 entropy, the distance is zero
   float ratio = 0;

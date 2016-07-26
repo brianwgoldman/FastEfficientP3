@@ -48,6 +48,8 @@ class Population {
   // Metadata recording about the behavior of crossover
   size_t successes, ties, failures, donation_attempts, donation_failures;
 
+  // Used by "Simplified P3" when solving H-IFF to determine if the clusters
+  // match the k-sized H-IFF blocks
   bool k_modeled();
 
  private:
@@ -58,12 +60,13 @@ class Population {
   // Keeps track of how often each possible pairing of bit values occurs in the population
   // for all pairs of genes
   vector<vector<array<int, 4>>> occurrences;
-  // Tracks the entropy distance between clusters
+  // Scratch space for calculating the entropy distance between clusters.
+  // Allocated once and shared by all populations.
   static vector<vector<float> > distances;
 
-  // Tool used to calculate the negative entropy of a list of occurrences
+  // Tool used to calculate the entropy of a list of occurrences
   template <size_t T>
-  float neg_entropy(const array<int, T>& counts, const float& total) const;
+  float entropy(const array<int, T>& counts, const float& total) const;
 
   // Given a list of occurrences, return the pairwise_distance
   float get_distance(const array<int, 4>& entry) const;
@@ -115,20 +118,23 @@ class Population {
   // Even if two clusters have zero distance, keep them both as crossover clusters.
   bool keep_zeros;
 
+  // Records what level of the pyramid this is (if applicable).
+  // Only really used by "Simplified P3"
   size_t level;
+  // Used by "Simplified P3" to limit maximum cluster size
   bool restrict_cluster_size;
 };
 
-// Returns the negative of the entropy given the list of counts and a total number,
+// Returns the entropy given the list of counts and a total number,
 // where total = sum(counts)
 template<size_t T>
-float Population::neg_entropy(const array<int, T>& counts, const float& total) const {
+float Population::entropy(const array<int, T>& counts, const float& total) const {
   float sum = 0;
   float p;
   for (const auto& value : counts) {
     if (value) {
       p = value / total;
-      sum += (p * log(p));
+      sum -= (p * log(p));
     }
   }
   return sum;

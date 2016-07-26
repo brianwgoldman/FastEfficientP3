@@ -254,6 +254,9 @@ void NearestNeighborNK::int_into_bit(size_t src, vector<bool>& dest) {
 // "The computational complexity of N-K fitness functions"
 // by A. H. Wright, R. K. Thompson, and J. Zhang
 float NearestNeighborNK::solve(vector<bool>& solution, bool maximize) {
+  if (length % k != 0) {
+    throw invalid_argument("N must be a multiple of K");
+  }
   size_t numbers = 1 << k;
   trimap known;
   std::unordered_map<size_t,
