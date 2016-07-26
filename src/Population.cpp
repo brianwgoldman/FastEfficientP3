@@ -25,7 +25,10 @@ Population::Population(Configuration& config, size_t _level) {
 
   // Set up the storage tables needed for model building
   distances.resize(clusters.size(), vector<float>(clusters.size(), -1));
-  occurrences.resize(length, vector<array<int, 4>>(length));
+  occurrences.resize(length, vector<array<int, 4>>());
+  for (size_t i=1; i < length; i++) {
+    occurrences[i].resize(i);
+  }
 
   // sets up the ordering function
   ordering = ordering_lookup[config.get<string>("cluster_ordering")];
@@ -48,7 +51,7 @@ void Population::add(const vector<bool> & solution, bool use_in_tree) {
   // loop through all pairs of genes and update the pairwise counts / entropy
   for (size_t i = 0; i < length - 1; i++) {
     for (size_t j = i + 1; j < length; j++) {
-      auto& entry = occurrences[i][j];
+      auto& entry = occurrences[j][i];
       // Updates the entry of the 4 long array based on the two bits
       entry[(solution[j] << 1) + solution[i]]++;
     }
@@ -82,7 +85,7 @@ float Population::get_distance(int x, int y) const {
   if (x > y) {
     std::swap(x, y);
   }
-  return get_distance(occurrences[x][y]);
+  return get_distance(occurrences[y][x]);
 }
 
 // Uses the entropy table to construct the clusters to use for crossover.

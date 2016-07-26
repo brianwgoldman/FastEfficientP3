@@ -98,6 +98,10 @@ class Deceptive3 : public Evaluator {
   int precision;
 };
 
+// Bipolar, also called Folded Trap, splits the bitstring into
+// traps like Deceptive Trap. Each trap scores optimally if all 0s
+// or all 1s, but the next best is to have exactly half of the bits
+// set to 1.
 class Bipolar : public Evaluator {
  public:
   Bipolar(Configuration& config, int run_number)
@@ -108,6 +112,25 @@ class Bipolar : public Evaluator {
 
 private:
   int trap_size;
+  int precision;
+};
+
+// Jump-K is kind of a cross between OneMax and Deceptive Trap.
+// The fitness is normally equal to the sum of bit values, unless
+// you are within k of the global optimal (all 1s). Then the closer
+// you get, the worse your fitness becomes. Therefore search must
+// "Jump" from n-k bits set to n bits set.
+class JumpK : public Evaluator {
+ public:
+  JumpK(Configuration& config, int run_number)
+      : k(config.get<int>("k")),
+        precision(config.get<int>("precision")) {
+  }
+  float evaluate(const vector<bool> & solution) override;
+  create_evaluator(JumpK);
+
+ private:
+  int k;
   int precision;
 };
 
@@ -247,21 +270,6 @@ class External : public Evaluator {
   string in_file;
 };
 
-class JumpK : public Evaluator {
- public:
-  JumpK(Configuration& config, int run_number)
-      : k(config.get<int>("k")),
-        precision(config.get<int>("precision")) {
-  }
-  float evaluate(const vector<bool> & solution) override;
-  create_evaluator(JumpK);
-
- private:
-  int k;
-  int precision;
-};
-
-
 // This mapping is used to convert a problem's name into an instance
 // of that Evaluator object
 namespace evaluation {
@@ -272,6 +280,7 @@ static std::unordered_map<string, pointer> lookup( {
     { "DeceptiveStepTrap", DeceptiveStepTrap::create },
     { "Deceptive3", Deceptive3::create },
     { "Bipolar", Bipolar::create },
+    { "JumpK", JumpK::create },
     { "NearestNeighborNK", NearestNeighborNK::create },
     { "LeadingOnes", LeadingOnes::create },
     { "HIFF", HIFF::create },
@@ -279,7 +288,6 @@ static std::unordered_map<string, pointer> lookup( {
     { "IsingSpinGlass", IsingSpinGlass::create },
     { "Rastrigin", Rastrigin::create },
     { "External", External::create },
-    { "JumpK", JumpK::create },
 });
 }
 

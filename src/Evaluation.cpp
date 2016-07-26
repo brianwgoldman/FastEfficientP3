@@ -116,6 +116,22 @@ float Bipolar::evaluate(const vector<bool> & solution) {
   return float_round(total * trap_size / solution.size(), precision);
 }
 
+float JumpK::evaluate(const vector<bool> & solution) {
+  // Count the number of bits set to one
+  size_t count = 0;
+  for (const bool bit : solution) {
+    count += bit;
+  }
+  float score;
+  if (count == solution.size() or count <= solution.size() - k) {
+    score = count + k;
+  } else {
+    // Push solutions away from all ones if they are closer than k.
+    score = solution.size() - count;
+  }
+  return score / (solution.size() + k);
+}
+
 // Attempts to load the problem file, otherwise constructs a new problem
 // solves it, and saves it to a problem file
 NearestNeighborNK::NearestNeighborNK(Configuration& config, int run_number) {
@@ -554,18 +570,4 @@ float External::evaluate(const vector<bool>& solution) {
   float fitness;
   input >> fitness;
   return fitness;
-}
-
-float JumpK::evaluate(const vector<bool> & solution) {
-  size_t count = 0;
-  for (const bool & bit : solution) {
-    count += bit;
-  }
-  float score;
-  if (count == solution.size() or count <= solution.size() - k) {
-    score = count + k;
-  } else {
-    score = solution.size() - count;
-  }
-  return score / (solution.size() + k);
 }
