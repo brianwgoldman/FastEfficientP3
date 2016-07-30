@@ -262,6 +262,7 @@ float NearestNeighborNK::hammer_solve(vector<bool>& solution, bool maximize) {
   const size_t patterns = 1 << dependencies;
   const size_t function_mask = (1 << (k+1)) - 1;
   // Pads 1 past N to make the logic simpler
+  // TODO pretty sure you only need 2 hammer functions: previous and under construction
   vector<vector<float>> hammer_functions(length+1, vector<float>(patterns, 0));
   vector<vector<char>> best_bit_choice(length, vector<char>(patterns));
   const char TIE = 2;
@@ -275,7 +276,7 @@ float NearestNeighborNK::hammer_solve(vector<bool>& solution, bool maximize) {
       hammer_functions[length][pattern] += table[f][relevant_bits];
     }
   }
-  const size_t powk = 1 << k; // TODO Verify this math
+  const size_t powk = 1 << k;
   const size_t hammer_function_mask = (1 << dependencies) - 1;
   // "n" is the bit position we are currently trying to remove.
   // You could also say at the end of this loop the problem size will be n.
@@ -316,13 +317,17 @@ float NearestNeighborNK::hammer_solve(vector<bool>& solution, bool maximize) {
 
   // The hammer_functions table is now wide enough to score all possible patterns
   // so we can just copy in the remaining functions
+  const size_t k_bits = (1 << k) - 1;
   for (size_t f=0; f < k; f++) {
     // Used to strip off bits not used by this function
     size_t shift_size = k - f - 1;
     for (size_t pattern=0; pattern < patterns; pattern++) {
       // Leaves only the k+1 bits used by this function
       size_t relevant_bits = (pattern >> shift_size) & function_mask;
-      hammer_functions[dependencies][pattern] += table[f][relevant_bits];
+      // TODO Simplify this, perhaps with 2 loops
+      // The handedness of this flips
+      size_t hammer_pattern = ((pattern >> k) & k_bits) | ((pattern & k_bits) << k);
+      hammer_functions[dependencies][hammer_pattern] += table[f][relevant_bits];
     }
   }
 
@@ -338,6 +343,7 @@ float NearestNeighborNK::hammer_solve(vector<bool>& solution, bool maximize) {
     }
   }
 
+  // TODO pretty sure this is broken
   // Extract a global optimum
   solution.resize(length);
   // First "dependencies" bits comes from "best_pattern";
