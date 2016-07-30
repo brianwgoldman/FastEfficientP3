@@ -187,17 +187,23 @@ NearestNeighborNK::NearestNeighborNK(Configuration& config, int run_number) {
       }
     }
 
-    // Find its minimum and maximum
-    minimum = make_filable(solve(worst, false));
-    maximum = make_filable(solve(best, true));
+    if (config.get<string>("method") == "old") {
+      // Find its minimum and maximum
+      minimum = make_filable(solve(worst, false));
+      maximum = make_filable(solve(best, true));
+    } else {
+      minimum = make_filable(hammer_solve(worst, false));
+      maximum = make_filable(hammer_solve(best, true));
+    }
+    auto& out = cout;
 
-    // Write it out to the file
-    ofstream out(filename);
     out << minimum << " ";
     print(worst, out);
 
     out << maximum << " ";
     print(best, out);
+
+    throw "STOP";
 
     for (auto& row : table) {
       for (auto& entry : row) {
@@ -205,7 +211,7 @@ NearestNeighborNK::NearestNeighborNK(Configuration& config, int run_number) {
       }
       out << endl;
     }
-    out.close();
+    //out.close();
   }
 }
 
@@ -249,14 +255,114 @@ void NearestNeighborNK::int_into_bit(size_t src, vector<bool>& dest) {
   }
 }
 
+float NearestNeighborNK::hammer_solve(vector<bool>& solution, bool maximize) {
+  // TODO Handle case where N < dependencies
+  // TODO Ensure this works for k=0
+  const size_t dependencies = 2 * k;
+  const size_t patterns = 1 << dependencies;
+  const size_t function_mask = (1 << (k+1)) - 1;
+  // Pads 1 past N to make the logic simpler
+  vector<vector<float>> hammer_functions(length+1, vector<float>(patterns, 0));
+  vector<vector<char>> best_bit_choice(length, vector<char>(patterns));
+  const char TIE = 2;
+  // Initialize the table with k last functions already compressed
+  for (size_t f=length - k; f < length; f++) {
+    // Used to strip off bits not used by this function
+    const size_t shift_size = length - f - 1;
+    for (size_t pattern=0; pattern < patterns; pattern++) {
+      // Leaves only the k+1 bits used by this function
+      size_t relevant_bits = (pattern >> shift_size) & function_mask;
+      hammer_functions[length][pattern] += table[f][relevant_bits];
+    }
+  }
+  const size_t powk = 1 << k; // TODO Verify this math
+  const size_t hammer_function_mask = (1 << dependencies) - 1;
+  // "n" is the bit position we are currently trying to remove.
+  // You could also say at the end of this loop the problem size will be n.
+  for (size_t n=length-1; n >= dependencies; n--) {
+    for (size_t left=0; left < powk; left++) {
+      for (size_t right=0; right < powk; right++) {
+        // quality of setting bit "n" to zero and one.
+        float zero_quality = 0, one_quality = 0;
+        // The pattern the dependent bits take
+        const size_t zero_pattern = (left << (k+1)) | right;
+        const size_t one_pattern = zero_pattern | powk;
+        // bit "n" only depends on two functions at this point:
+        // function_{n-k} and the hammer_function[n+1]
+        zero_quality += table[n - k][zero_pattern >> k];
+        one_quality += table[n - k][one_pattern >> k];
+        zero_quality += hammer_functions[n + 1][zero_pattern & hammer_function_mask];
+        one_quality += hammer_functions[n + 1][one_pattern & hammer_function_mask];
+        // put the results into the table
+        const size_t hammer_pattern = (left << k) | right;
+        if ((maximize and zero_quality > one_quality) or
+            (not maximize and zero_quality < one_quality)) {
+          // Zero was better
+          hammer_functions[n][hammer_pattern] = zero_quality;
+          best_bit_choice[n][hammer_pattern] = 0;
+        } else if (zero_quality == one_quality) {
+          // tie
+          hammer_functions[n][hammer_pattern] = zero_quality;
+          best_bit_choice[n][hammer_pattern] = TIE;
+          cout << "A tie happened" << endl;
+        } else {
+          // One was better
+          hammer_functions[n][hammer_pattern] = one_quality;
+          best_bit_choice[n][hammer_pattern] = 1;
+        }
+      }
+    }
+  }
+
+  // The hammer_functions table is now wide enough to score all possible patterns
+  // so we can just copy in the remaining functions
+  for (size_t f=0; f < k; f++) {
+    // Used to strip off bits not used by this function
+    size_t shift_size = k - f - 1;
+    for (size_t pattern=0; pattern < patterns; pattern++) {
+      // Leaves only the k+1 bits used by this function
+      size_t relevant_bits = (pattern >> shift_size) & function_mask;
+      hammer_functions[dependencies][pattern] += table[f][relevant_bits];
+    }
+  }
+
+  // Whichever hammer_functions entry for "dependencies" has the highest quality
+  // is now the best pattern
+  const auto& final_column = hammer_functions[dependencies];
+  size_t best_pattern = 0;
+  for (size_t pattern=0; pattern < patterns; pattern++) {
+    if ((maximize and final_column[pattern] > final_column[best_pattern]) or
+        (not maximize and final_column[pattern] < final_column[best_pattern])) {
+      // TODO Probably need a list of patterns to deal with ties
+      best_pattern = pattern;
+    }
+  }
+
+  // Extract a global optimum
+  solution.resize(length);
+  // First "dependencies" bits comes from "best_pattern";
+  for (size_t i=0; i < dependencies; i++) {
+    solution[i] = (best_pattern >> (dependencies - i - 1)) & 1;
+  }
+  size_t current_pattern = best_pattern;
+  for (size_t i= dependencies; i < length; i++) {
+    auto best_bit = best_bit_choice[i][current_pattern];
+    if (best_bit == TIE) {
+      // TODO Handle this better
+      best_bit = 0;
+    }
+    solution[i] = best_bit;
+    // shift out old bit information, add in new bit
+    current_pattern = ((current_pattern << 1) & hammer_function_mask) | best_bit;
+  }
+  return final_column[best_pattern];
+}
+
 // Find either the minimum or maximum (depending on the last argument) of the problem
 // See the following paper for full explanation:
 // "The computational complexity of N-K fitness functions"
 // by A. H. Wright, R. K. Thompson, and J. Zhang
 float NearestNeighborNK::solve(vector<bool>& solution, bool maximize) {
-  if (length % k != 0) {
-    throw invalid_argument("N must be a multiple of K");
-  }
   size_t numbers = 1 << k;
   trimap known;
   std::unordered_map<size_t,

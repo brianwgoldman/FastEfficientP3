@@ -164,6 +164,7 @@ class NearestNeighborNK : public Evaluator {
   float chunk_fitness(trimap& known, size_t chunk_index, size_t a, size_t b);
   void int_into_bit(size_t src, vector<bool>& dest);
   float solve(vector<bool>& solution, bool maximize);
+  float hammer_solve(vector<bool>& solution, bool maximize);
 };
 
 // The Leading Ones problem assigns fitness to the solution equal to the
