@@ -343,18 +343,16 @@ float NearestNeighborNK::hammer_solve(vector<bool>& solution, bool maximize) {
       best_pattern = pattern;
     }
   }
-  cout << "Best Pattern: " << best_pattern << endl;
   // Extract a global optimum
   solution.resize(length);
-  size_t right = best_pattern >> k;
-  size_t left = best_pattern & k_bits;
-  size_t dependency_pattern = left << k | right;
+  size_t left = best_pattern >> k;
+  size_t right = best_pattern & k_bits;
+  size_t dependency_pattern = right << k | left;
   // First "dependencies" bits comes from "best_pattern";
   for (size_t i=0; i < dependencies; i++) {
     solution[i] = (dependency_pattern >> (dependencies - i - 1)) & 1;
-    //cout << "Bit: " << i << "=" << solution[i] << endl;
   }
-  for (size_t i= dependencies; i < length; i++) {
+  for (size_t i = dependencies; i < length; i++) {
     auto best_bit = best_bit_choice[i][left << k | right];
     if (best_bit == TIE) {
       // TODO Handle this better
