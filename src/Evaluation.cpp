@@ -262,23 +262,25 @@ float NearestNeighborNK::hammer_solve(vector<bool>& solution, bool maximize) {
   const size_t dependencies = 2 * k;
   const size_t patterns = 1 << dependencies;
   const size_t function_mask = (1 << (k+1)) - 1;
-  // Pads 1 past N to make the logic simpler
-  // TODO pretty sure you only need 2 hammer functions: previous and under construction
-  vector<vector<float>> hammer_functions(length+1, vector<float>(patterns, 0));
+  // These are used to build and store the functions created
+  // by removing a bit.
+  vector<float> previous_function(patterns, 0);
+  vector<float> next_function(patterns, 0);
+  // Records how the removed bit should be set given its dependencies
   vector<vector<char>> best_bit_choice(length, vector<char>(patterns));
   const char TIE = 2;
-  // Initialize the table with k last functions already compressed
-  for (size_t f=length - k; f < length; f++) {
+  // Creates a function to mimic all NK functions that wrap
+  for (int f=length - k; f < length; f++) {
     // Used to strip off bits not used by this function
     const size_t shift_size = length - f - 1;
     for (size_t pattern=0; pattern < patterns; pattern++) {
       // Leaves only the k+1 bits used by this function
       size_t relevant_bits = (pattern >> shift_size) & function_mask;
-      hammer_functions[length][pattern] += table[f][relevant_bits];
+      previous_function[pattern] += table[f][relevant_bits];
     }
   }
   const size_t powk = 1 << k;
-  const size_t hammer_function_mask = (1 << dependencies) - 1;
+  const size_t created_function_mask = (1 << dependencies) - 1;
   // "n" is the bit position we are currently trying to remove.
   // You could also say at the end of this loop the problem size will be n.
   for (size_t n=length-1; n >= dependencies; n--) {
@@ -290,34 +292,35 @@ float NearestNeighborNK::hammer_solve(vector<bool>& solution, bool maximize) {
         const size_t zero_pattern = (left << (k+1)) | right;
         const size_t one_pattern = zero_pattern | powk;
         // bit "n" only depends on two functions at this point:
-        // function_{n-k} and the hammer_function[n+1]
+        // NK function_{n-k} and the "previous_function"
         zero_quality += table[n - k][zero_pattern >> k];
         one_quality += table[n - k][one_pattern >> k];
-        zero_quality += hammer_functions[n + 1][zero_pattern & hammer_function_mask];
-        one_quality += hammer_functions[n + 1][one_pattern & hammer_function_mask];
-        // put the results into the table
+        zero_quality += previous_function[zero_pattern & created_function_mask];
+        one_quality += previous_function[one_pattern & created_function_mask];
+        // put the results into "next_function"
         const size_t hammer_pattern = (left << k) | right;
         if ((maximize and zero_quality > one_quality) or
             (not maximize and zero_quality < one_quality)) {
           // Zero was better
-          hammer_functions[n][hammer_pattern] = zero_quality;
+          next_function[hammer_pattern] = zero_quality;
           best_bit_choice[n][hammer_pattern] = 0;
         } else if (zero_quality == one_quality) {
           // tie
-          hammer_functions[n][hammer_pattern] = zero_quality;
+          next_function[hammer_pattern] = zero_quality;
           best_bit_choice[n][hammer_pattern] = TIE;
           cout << "A tie happened" << endl;
         } else {
           // One was better
-          hammer_functions[n][hammer_pattern] = one_quality;
+          next_function[hammer_pattern] = one_quality;
           best_bit_choice[n][hammer_pattern] = 1;
         }
       }
     }
+    previous_function.swap(next_function);
   }
 
-  // The hammer_functions table is now wide enough to score all possible patterns
-  // so we can just copy in the remaining functions
+  // previous_function is now wide enough to score all remaining patterns
+  // so we can just copy in the remaining NK functions
   const size_t k_bits = (1 << k) - 1;
   for (size_t f=0; f < k; f++) {
     // Used to strip off bits not used by this function
@@ -327,18 +330,17 @@ float NearestNeighborNK::hammer_solve(vector<bool>& solution, bool maximize) {
       size_t relevant_bits = (pattern >> shift_size) & function_mask;
       // TODO Simplify this, perhaps with 2 loops
       // The handedness of this flips
-      size_t hammer_pattern = ((pattern >> k) & k_bits) | ((pattern & k_bits) << k);
-      hammer_functions[dependencies][hammer_pattern] += table[f][relevant_bits];
+      size_t previous_function_pattern = ((pattern >> k) & k_bits) | ((pattern & k_bits) << k);
+      previous_function[previous_function_pattern] += table[f][relevant_bits];
     }
   }
 
-  // Whichever hammer_functions entry for "dependencies" has the highest quality
-  // is now the best pattern
-  const auto& final_column = hammer_functions[dependencies];
+  // Whichever previous_function entry has the highest quality
+  // is the true best pattern
   size_t best_pattern = 0;
   for (size_t pattern=0; pattern < patterns; pattern++) {
-    if ((maximize and final_column[pattern] > final_column[best_pattern]) or
-        (not maximize and final_column[pattern] < final_column[best_pattern])) {
+    if ((maximize and previous_function[pattern] > previous_function[best_pattern]) or
+        (not maximize and previous_function[pattern] < previous_function[best_pattern])) {
       // TODO Probably need a list of patterns to deal with ties
       best_pattern = pattern;
     }
@@ -347,12 +349,13 @@ float NearestNeighborNK::hammer_solve(vector<bool>& solution, bool maximize) {
   solution.resize(length);
   size_t left = best_pattern >> k;
   size_t right = best_pattern & k_bits;
-  size_t dependency_pattern = right << k | left;
-  // First "dependencies" bits comes from "best_pattern";
+  // First "dependencies" bits comes from "best_pattern", but flipped
+  const size_t dependency_pattern = right << k | left;
   for (size_t i=0; i < dependencies; i++) {
     solution[i] = (dependency_pattern >> (dependencies - i - 1)) & 1;
   }
-  for (size_t i = dependencies; i < length; i++) {
+  // Use the previous "left" and "right" to recover the way to set bit i
+  for (int i = dependencies; i < length; i++) {
     auto best_bit = best_bit_choice[i][left << k | right];
     if (best_bit == TIE) {
       // TODO Handle this better
@@ -362,7 +365,7 @@ float NearestNeighborNK::hammer_solve(vector<bool>& solution, bool maximize) {
     // shift out old bit information, add in new bit
     left = ((left << 1) & k_bits) | best_bit;
   }
-  return final_column[best_pattern];
+  return previous_function[best_pattern];
 }
 
 // Find either the minimum or maximum (depending on the last argument) of the problem
