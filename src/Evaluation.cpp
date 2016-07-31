@@ -203,6 +203,7 @@ NearestNeighborNK::NearestNeighborNK(Configuration& config, int run_number) {
     out << maximum << " ";
     print(best, out);
 
+    cout << evaluate(worst) << " " << evaluate(best) << endl;
     throw "STOP";
 
     for (auto& row : table) {
@@ -342,24 +343,26 @@ float NearestNeighborNK::hammer_solve(vector<bool>& solution, bool maximize) {
       best_pattern = pattern;
     }
   }
-
-  // TODO pretty sure this is broken
+  cout << "Best Pattern: " << best_pattern << endl;
   // Extract a global optimum
   solution.resize(length);
+  size_t right = best_pattern >> k;
+  size_t left = best_pattern & k_bits;
+  size_t dependency_pattern = left << k | right;
   // First "dependencies" bits comes from "best_pattern";
   for (size_t i=0; i < dependencies; i++) {
-    solution[i] = (best_pattern >> (dependencies - i - 1)) & 1;
+    solution[i] = (dependency_pattern >> (dependencies - i - 1)) & 1;
+    //cout << "Bit: " << i << "=" << solution[i] << endl;
   }
-  size_t current_pattern = best_pattern;
   for (size_t i= dependencies; i < length; i++) {
-    auto best_bit = best_bit_choice[i][current_pattern];
+    auto best_bit = best_bit_choice[i][left << k | right];
     if (best_bit == TIE) {
       // TODO Handle this better
       best_bit = 0;
     }
     solution[i] = best_bit;
     // shift out old bit information, add in new bit
-    current_pattern = ((current_pattern << 1) & hammer_function_mask) | best_bit;
+    left = ((left << 1) & k_bits) | best_bit;
   }
   return final_column[best_pattern];
 }
