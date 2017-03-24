@@ -15,6 +15,7 @@ CPP_SRCS += \
 ../src/OptimizationCollection.cpp \
 ../src/Popless.cpp \
 ../src/Population.cpp \
+../src/PowerLaw.cpp \
 ../src/Pyramid.cpp \
 ../src/RandomRestartHC.cpp \
 ../src/Record.cpp \
@@ -33,6 +34,7 @@ OBJS += \
 ./src/OptimizationCollection.o \
 ./src/Popless.o \
 ./src/Population.o \
+./src/PowerLaw.o \
 ./src/Pyramid.o \
 ./src/RandomRestartHC.o \
 ./src/Record.o \
@@ -51,6 +53,7 @@ CPP_DEPS += \
 ./src/OptimizationCollection.d \
 ./src/Popless.d \
 ./src/Population.d \
+./src/PowerLaw.d \
 ./src/Pyramid.d \
 ./src/RandomRestartHC.d \
 ./src/Record.d \

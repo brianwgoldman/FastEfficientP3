@@ -13,6 +13,7 @@
 #include "LambdaLambda.h"
 #include "HBOA.h"
 #include "Popless.h"
+#include "PowerLaw.h"
 #include <unordered_map>
 
 namespace optimize {
@@ -27,6 +28,7 @@ static std::unordered_map<string, pointer> lookup( {
   { "LambdaLambda", LambdaLambda::create },
   { "HBOA", HBOA::create},
   { "Popless", Popless::create},
+  { "PowerLaw", PowerLaw::create},
 });
 }
 
